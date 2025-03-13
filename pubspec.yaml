@@ -10,10 +10,16 @@ dependencies:
   bloc: ^8.1.4
   flutter:
     sdk: flutter
-  flutter_bloc: ^8.1.6
+  flutter_bloc: any
   flutter_localizations:
     sdk: flutter
   intl: ^0.19.0
+  local_data:
+    git:
+      url: https://gitlab+deploy-token-4:4zjU2bJymy7c6vTztanf@gitlab.probasegroup.com/flutter_packages/local_data.git
+      ref: 25bcb3354fc6171858c62e33d81410192458969f
+  net_source:
+    path: packages/net_source
 
 dev_dependencies:
   bloc_test: ^9.1.7

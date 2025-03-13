@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/main/cubit/cubit.dart';
 
 /// {@template main_body}
@@ -14,7 +15,13 @@ class MainBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MainCubit, MainState>(
       builder: (context, state) {
-        return Center(child: Text(state.message));
+        return Center(
+          child: TextButton(
+              onPressed: () {
+                context.read<AuthBloc>().add(AuthLogoutRequested());
+              },
+              child: const Text('Logout'),),
+        );
       },
     );
   }

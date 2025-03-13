@@ -6,8 +6,6 @@ import 'package:road_guard/widgets/widgets.dart';
 
 /// {@template sign_up_body}
 /// Body of the SignUpPage.
-///
-/// Add what it does
 /// {@endtemplate}
 class SignUpBody extends StatelessWidget {
   /// {@macro sign_up_body}
@@ -26,6 +24,10 @@ class SignUpBody extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                _NameInput(),
+                SizedBox(height: getProportionateScreenHeight(8)),
+                _PhoneInput(),
+                SizedBox(height: getProportionateScreenHeight(8)),
                 _EmailInput(),
                 SizedBox(height: getProportionateScreenHeight(8)),
                 _PasswordInput(),
@@ -42,6 +44,46 @@ class SignUpBody extends StatelessWidget {
   }
 }
 
+class _NameInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+      (SignUpCubit cubit) => cubit.state.name.displayError,
+    );
+
+    return TextField(
+      key: const Key('signUpForm_nameInput_textField'),
+      onChanged: (name) => context.read<SignUpCubit>().nameChanged(name),
+      keyboardType: TextInputType.name,
+      decoration: InputDecoration(
+        labelText: 'Full Name',
+        helperText: '',
+        errorText: displayError != null ? 'Invalid name' : null,
+      ),
+    );
+  }
+}
+
+class _PhoneInput extends StatelessWidget {
+  @override
+  Widget build(BuildContext context) {
+    final displayError = context.select(
+      (SignUpCubit cubit) => cubit.state.phone.displayError,
+    );
+
+    return TextField(
+      key: const Key('signUpForm_phoneInput_textField'),
+      onChanged: (phone) => context.read<SignUpCubit>().phoneChanged(phone),
+      keyboardType: TextInputType.phone,
+      decoration: InputDecoration(
+        labelText: 'Phone Number',
+        helperText: '',
+        errorText: displayError != null ? 'Invalid phone number' : null,
+      ),
+    );
+  }
+}
+
 class _EmailInput extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
@@ -54,9 +96,9 @@ class _EmailInput extends StatelessWidget {
       onChanged: (email) => context.read<SignUpCubit>().emailChanged(email),
       keyboardType: TextInputType.emailAddress,
       decoration: InputDecoration(
-        labelText: 'email',
+        labelText: 'Email',
         helperText: '',
-        errorText: displayError != null ? 'invalid email' : null,
+        errorText: displayError != null ? 'Invalid email' : null,
       ),
     );
   }
@@ -75,9 +117,9 @@ class _PasswordInput extends StatelessWidget {
           context.read<SignUpCubit>().passwordChanged(password),
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'password',
+        labelText: 'Password',
         helperText: '',
-        errorText: displayError != null ? 'invalid password' : null,
+        errorText: displayError != null ? 'Invalid password' : null,
       ),
     );
   }
@@ -96,9 +138,9 @@ class _ConfirmPasswordInput extends StatelessWidget {
           context.read<SignUpCubit>().confirmedPasswordChanged(confirmPassword),
       obscureText: true,
       decoration: InputDecoration(
-        labelText: 'confirm password',
+        labelText: 'Confirm Password',
         helperText: '',
-        errorText: displayError != null ? 'passwords do not match' : null,
+        errorText: displayError != null ? 'Passwords do not match' : null,
       ),
     );
   }
@@ -108,10 +150,10 @@ class _SignUpButton extends StatelessWidget {
   const _SignUpButton({required this.state});
 
   final SignUpState state;
+
   @override
   Widget build(BuildContext context) {
     final isInProgress = state.status == FormzSubmissionStatus.inProgress;
-
     final isValid = context.select(
       (SignUpCubit cubit) => cubit.state.isValid,
     );

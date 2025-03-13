@@ -11,7 +11,7 @@ class SignUpCubit extends Cubit<SignUpState> {
   SignUpCubit(this.firebaseRepo) : super(const SignUpState());
   final FirebaseRepo firebaseRepo;
 
-void emailChanged(String value) {
+  void emailChanged(String value) {
     final email = Email.dirty(value);
     emit(
       state.copyWith(
@@ -20,6 +20,8 @@ void emailChanged(String value) {
           email,
           state.password,
           state.confirmedPassword,
+          state.name,
+          state.phone,
         ]),
       ),
     );
@@ -39,6 +41,8 @@ void emailChanged(String value) {
           state.email,
           password,
           confirmedPassword,
+          state.name,
+          state.phone,
         ]),
       ),
     );
@@ -56,6 +60,40 @@ void emailChanged(String value) {
           state.email,
           state.password,
           confirmedPassword,
+          state.name,
+          state.phone,
+        ]),
+      ),
+    );
+  }
+
+  void nameChanged(String value) {
+    final name = Name.dirty(value);
+    emit(
+      state.copyWith(
+        name: name,
+        isValid: Formz.validate([
+          state.email,
+          state.password,
+          state.confirmedPassword,
+          name,
+          state.phone,
+        ]),
+      ),
+    );
+  }
+
+  void phoneChanged(String value) {
+    final phone = PhoneNumber.dirty(value);
+    emit(
+      state.copyWith(
+        phone: phone,
+        isValid: Formz.validate([
+          state.email,
+          state.password,
+          state.confirmedPassword,
+          state.name,
+          phone,
         ]),
       ),
     );
@@ -68,6 +106,10 @@ void emailChanged(String value) {
       await firebaseRepo.signUp(
         email: state.email.value,
         password: state.password.value,
+        name: state.name.value,
+        phone: state.phone.value,
+        metaData: '',
+        role: 'DRIVER',
       );
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } on SignUpWithEmailAndPasswordFailure catch (e) {

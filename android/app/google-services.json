@@ -14,7 +14,15 @@
       },
       "oauth_client": [
         {
-          "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+          "client_id": "333793343250-9kmerjk7tdtldriil4ueccuib5uvv3ru.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.probase.workers",
+            "certificate_hash": "c5dc89c4565d2ce037bfa09b4284fc92c457de3b"
+          }
+        },
+        {
+          "client_id": "333793343250-sbabnnct98vrvclhbemol0j5e7hmif11.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
@@ -50,7 +58,7 @@
       },
       "oauth_client": [
         {
-          "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+          "client_id": "333793343250-sbabnnct98vrvclhbemol0j5e7hmif11.apps.googleusercontent.com",
           "client_type": 3
         }
       ],

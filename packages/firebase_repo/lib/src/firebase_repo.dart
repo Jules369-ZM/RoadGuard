@@ -4,6 +4,7 @@ import 'dart:developer';
 
 import 'package:auth_repo/auth_repo.dart';
 import 'package:cache/cache.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
@@ -23,6 +24,7 @@ class FirebaseRepo {
     required bool? isDev,
     required firebase_auth.FirebaseAuth? firebaseAuth,
     required GoogleSignIn? googleSignIn,
+    FirebaseFirestore? firestore,
     CacheClient? cache,
   })  : _db = db,
         _prefs = prefs,
@@ -30,7 +32,8 @@ class FirebaseRepo {
         _cache = cache ?? CacheClient(),
         _isDev = isDev ?? true,
         _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
+        _googleSignIn = googleSignIn ?? GoogleSignIn.standard(),
+        _firestore = firestore ?? FirebaseFirestore.instance;
 
   final LocalData _db;
   final SharedPrefs _prefs;
@@ -39,6 +42,7 @@ class FirebaseRepo {
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final CacheClient _cache;
+  final FirebaseFirestore _firestore;
 
   // Shared preferences keys
   final String _keyId = 'user_id';
@@ -90,30 +94,19 @@ class FirebaseRepo {
         log('firebaseUser: $firebaseUser');
         if (firebaseUser != null) {
           final userCred = firebaseUser;
-          final user = User(
-            id: userCred.uid,
-            email: userCred.email,
-            name: userCred.displayName,
-            avatar: userCred.photoURL,
-            phone: userCred.phoneNumber ?? '',
-            role: 'DRIVER',
-            metaData: jsonEncode({
-              'emailVerified': userCred.emailVerified,
-              'providerId': userCred.providerData[0].providerId,
-              'uid': userCred.providerData[0].uid,
-              'displayName': userCred.providerData[0].displayName,
-              'photoUrl': userCred.providerData[0].photoURL,
-              'email': userCred.providerData[0].email,
-              'phoneNumber': userCred.providerData[0].phoneNumber,
-              'provider': userCred.providerData[0].providerId,
-            }),
-          );
-          final t = await userCred.getIdToken();
-          await _prefs.set(_keyToken, t);
-          await _prefs.set(_keyLoggedIn, true);
-          await _prefs.set(_keyId, user.id);
-          await _db.insertOne(_tblUsers, user.toJsonDb());
-          _controller.add(AuthStatus.authenticated);
+          final fireStoreUser = await getUserData(userCred.uid);
+          log('fireStoreUser: $fireStoreUser');
+          if (fireStoreUser != null) {
+            final user = User.fromJson(fireStoreUser);
+            final t = await userCred.getIdToken();
+            await _prefs.set(_keyToken, t);
+            await _prefs.set(_keyLoggedIn, true);
+            await _prefs.set(_keyId, user.id);
+            await _db.insertOne(_tblUsers, user.toJsonDb());
+            _controller.add(AuthStatus.authenticated);
+          } else {
+            _controller.add(AuthStatus.unauthenticated);
+          }
         } else if (firebaseUser != null && firebaseUser.isAnonymous) {
           _controller.add(AuthStatus.guest);
         } else {
@@ -129,16 +122,68 @@ class FirebaseRepo {
   /// Creates a new user with the provided [email] and [password].
   ///
   /// Throws a [SignUpWithEmailAndPasswordFailure] if an exception occurs.
-  Future<void> signUp({required String email, required String password}) async {
+  Future<void> signUp({
+    required String email,
+    required String password,
+    required String name,
+    required String phone,
+    required String metaData,
+    required String role,
+  }) async {
     try {
-      await _firebaseAuth.createUserWithEmailAndPassword(
+      final cred = await _firebaseAuth.createUserWithEmailAndPassword(
         email: email,
         password: password,
       );
+      final userCred = cred.user!;
+      final user = User(
+        id: userCred.uid,
+        email: userCred.email ?? email,
+        name: userCred.displayName ?? name,
+        avatar: userCred.photoURL,
+        phone: userCred.phoneNumber ?? phone,
+        role: role,
+        metaData: jsonEncode({
+          'emailVerified': userCred.emailVerified,
+          'providerId': userCred.providerData[0].providerId,
+          'uid': userCred.providerData[0].uid,
+          'displayName': userCred.providerData[0].displayName,
+          'photoUrl': userCred.providerData[0].photoURL,
+          'email': userCred.providerData[0].email,
+          'phoneNumber': userCred.providerData[0].phoneNumber,
+          'provider': userCred.providerData[0].providerId,
+          'metaData1': metaData,
+          'metaData2': userCred.metadata,
+        }),
+      );
+      await saveUserData(user: user.toJson());
     } on firebase_auth.FirebaseAuthException catch (e) {
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
     } catch (_) {
       throw const SignUpWithEmailAndPasswordFailure();
+    }
+  }
+
+  /// Save user data to Firestore after registration
+  Future<void> saveUserData({
+    required JsonMap user,
+  }) async {
+    try {
+      user['createdAt'] = FieldValue.serverTimestamp();
+      final uid = user['id'] as String;
+      await _firestore.collection('users').doc(uid).set(user);
+    } catch (e) {
+      throw Exception('Error saving user data: $e');
+    }
+  }
+
+  /// Get user details from Firestore
+  Future<Map<String, dynamic>?> getUserData(String uid) async {
+    try {
+      final doc = await _firestore.collection('users').doc(uid).get();
+      return doc.exists ? doc.data() : null;
+    } catch (e) {
+      throw Exception('Error getting user data: $e');
     }
   }
 

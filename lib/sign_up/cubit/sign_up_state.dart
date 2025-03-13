@@ -1,47 +1,57 @@
 part of 'sign_up_cubit.dart';
 
-/// {@template sign_up}
-/// SignUpState description
-/// {@endtemplate}
 class SignUpState extends Equatable {
-  /// {@macro sign_up}
   const SignUpState({
-    this.message = 'Default Value',
     this.email = const Email.pure(),
     this.password = const Password.pure(),
     this.confirmedPassword = const ConfirmedPassword.pure(),
+    this.name = const Name.pure(),
+    this.phone = const PhoneNumber.pure(),
     this.status = FormzSubmissionStatus.initial,
+    this.message = '',
     this.isValid = false,
   });
 
-  /// A description for customProperty
-  final String message;
   final Email email;
   final Password password;
   final ConfirmedPassword confirmedPassword;
+  final Name name;
+  final PhoneNumber phone;
   final FormzSubmissionStatus status;
+  final String message;
   final bool isValid;
 
-  @override
-  List<Object> get props =>
-      [message, email, password, confirmedPassword, status, isValid];
-
-  /// Creates a copy of the current SignUpState with property changes
   SignUpState copyWith({
-    String? message,
     Email? email,
     Password? password,
     ConfirmedPassword? confirmedPassword,
+    Name? name,
+    PhoneNumber? phone,
     FormzSubmissionStatus? status,
+    String? message,
     bool? isValid,
   }) {
     return SignUpState(
-      message: message ?? this.message,
       email: email ?? this.email,
       password: password ?? this.password,
       confirmedPassword: confirmedPassword ?? this.confirmedPassword,
+      name: name ?? this.name,
+      phone: phone ?? this.phone,
       status: status ?? this.status,
+      message: message ?? this.message,
       isValid: isValid ?? this.isValid,
     );
   }
+
+  @override
+  List<Object> get props => [
+        email,
+        password,
+        confirmedPassword,
+        name,
+        phone,
+        status,
+        message,
+        isValid,
+      ];
 }

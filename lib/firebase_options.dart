@@ -63,6 +63,9 @@ class DefaultFirebaseOptions {
     messagingSenderId: '333793343250',
     projectId: 'eworkers-33518',
     storageBucket: 'eworkers-33518.firebasestorage.app',
+    androidClientId: '333793343250-9kmerjk7tdtldriil4ueccuib5uvv3ru.apps.googleusercontent.com',
+    iosClientId: '333793343250-pg9o0i43609036emk3oha4rl21l83g4b.apps.googleusercontent.com',
     iosBundleId: 'zm.co.roadguard',
   );
+
 }

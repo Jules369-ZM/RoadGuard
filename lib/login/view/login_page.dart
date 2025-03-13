@@ -17,12 +17,13 @@ class LoginPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => LoginCubit(),
-      child: const Scaffold(
-        body: LoginView(),
+      create: (context) => LoginCubit(context.read()),
+      child: Scaffold(
+        appBar: AppBar(title: const Text('Login')),
+        body: const LoginView(),
       ),
     );
-  }    
+  }
 }
 
 /// {@template login_view}

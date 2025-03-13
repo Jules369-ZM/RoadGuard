@@ -6,24 +6,25 @@ part of 'main_cubit.dart';
 class MainState extends Equatable {
   /// {@macro main}
   const MainState({
-    this.customProperty = 'Default Value',
+    this.message = 'Default Value',
   });
 
-  /// A description for customProperty
-  final String customProperty;
+  /// A description for message
+  final String message;
 
   @override
-  List<Object> get props => [customProperty];
+  List<Object> get props => [message];
 
   /// Creates a copy of the current MainState with property changes
   MainState copyWith({
-    String? customProperty,
+    String? message,
   }) {
     return MainState(
-      customProperty: customProperty ?? this.customProperty,
+      message: message ?? this.message,
     );
   }
 }
+
 /// {@template main_initial}
 /// The initial state of MainState
 /// {@endtemplate}

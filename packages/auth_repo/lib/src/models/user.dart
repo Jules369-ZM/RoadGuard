@@ -11,14 +11,10 @@ class User extends Equatable {
     required this.id,
     required this.avatar,
     required this.name,
-    required this.accountType,
     required this.email,
     required this.phone,
-    required this.isGmailIdUser,
-    required this.isAppleIdUser,
-    required this.createdAt,
-    required this.updatedAt,
-    required this.deletedAt,
+    required this.metaData,
+    required this.role,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -28,55 +24,39 @@ class User extends Equatable {
   final String? id;
   final String? avatar;
   final String? name;
-  final String? accountType;
   final String? email;
   final String? phone;
-  final bool? isGmailIdUser;
-  final bool? isAppleIdUser;
-  final DateTime? createdAt;
-  final DateTime? updatedAt;
-  final String? deletedAt;
+  final String? metaData;
+  final String? role;
 
   /// Empty user instance
   static const empty = User(
     id: '',
     avatar: '',
     name: '',
-    accountType: '',
     email: '',
     phone: '',
-    deletedAt: '',
-    isGmailIdUser: false,
-    isAppleIdUser: false,
-    createdAt: null,
-    updatedAt: null,
+    metaData: '',
+    role: '',
   );
 
   User copyWith({
     String? id,
     String? avatar,
     String? name,
-    String? accountType,
+    String? metaData,
     String? email,
     String? phone,
-    bool? isGmailIdUser,
-    bool? isAppleIdUser,
-    DateTime? createdAt,
-    DateTime? updatedAt,
-    String? deletedAt,
+    String? role,
   }) {
     return User(
       id: id ?? this.id ?? '',
       avatar: avatar ?? this.avatar ?? '',
       name: name ?? this.name ?? '',
-      accountType: accountType ?? this.accountType ?? '',
+      metaData: metaData ?? this.metaData ?? '',
       email: email ?? this.email ?? '',
       phone: phone ?? this.phone ?? '',
-      isGmailIdUser: isGmailIdUser ?? this.isGmailIdUser ?? false,
-      isAppleIdUser: isAppleIdUser ?? this.isAppleIdUser ?? false,
-      createdAt: createdAt ?? this.createdAt,
-      updatedAt: updatedAt ?? this.updatedAt,
-      deletedAt: deletedAt ?? this.deletedAt ?? '',
+      role: role ?? this.role ?? '',
     );
   }
 
@@ -87,7 +67,7 @@ class User extends Equatable {
 
   @override
   String toString() {
-    return '''$id, $avatar, $name, $accountType, $email, $phone, $isGmailIdUser, $isAppleIdUser, $createdAt, $updatedAt, $deletedAt''';
+    return '''$id, $avatar, $name, $metaData, $email, $phone,  $role''';
   }
 
   @override
@@ -95,14 +75,10 @@ class User extends Equatable {
         id,
         avatar,
         name,
-        accountType,
+        metaData,
         email,
         phone,
-        isGmailIdUser,
-        isAppleIdUser,
-        createdAt,
-        updatedAt,
-        deletedAt,
+        role,
       ];
 }
 
@@ -110,30 +86,18 @@ Map<String, dynamic> _$UserToJsonDb(User instance) => <String, dynamic>{
       'id': instance.id,
       'avatar': instance.avatar,
       'name': instance.name,
-      'accountType': instance.accountType,
+      'metaData': instance.metaData,
       'email': instance.email,
       'phone': instance.phone,
-      'isGmailIdUser': instance.isGmailIdUser ?? false ? 1 : 0,
-      'isAppleIdUser': instance.isAppleIdUser ?? false ? 1 : 0,
-      'createdAt': instance.createdAt?.toIso8601String(),
-      'updatedAt': instance.updatedAt?.toIso8601String(),
-      'deletedAt': instance.deletedAt,
+      'role': instance.role,
     };
 
 User _$UserFromDbJson(Map<String, dynamic> json) => User(
       id: json['id'] as String? ?? '',
       avatar: json['avatar'] as String? ?? '',
       name: json['name'] as String? ?? '',
-      accountType: json['accountType'] as String? ?? '',
+      metaData: json['metaData'] as String? ?? '',
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
-      isGmailIdUser: json['isGmailIdUser'] == 1,
-      isAppleIdUser: json['isAppleIdUser'] == 1,
-      createdAt: json['createdAt'] == null
-          ? null
-          : DateTime.parse(json['createdAt'] as String),
-      updatedAt: json['updatedAt'] == null
-          ? null
-          : DateTime.parse(json['updatedAt'] as String),
-      deletedAt: json['deletedAt'] as String? ?? '',
+      role: json['role'] as String? ?? '',
     );

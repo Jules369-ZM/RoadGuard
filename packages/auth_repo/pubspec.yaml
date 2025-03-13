@@ -7,6 +7,8 @@ environment:
   sdk: ^3.5.0
 
 dependencies:
+  cache:
+    path: ../cache
   equatable: ^2.0.5
   firebase_repo:
     path: ../firebase_repo

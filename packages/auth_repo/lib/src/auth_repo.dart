@@ -49,6 +49,9 @@ class AuthRepo {
   // _socket = socket
   {
     _progressSub = _net.uploadProgress.listen(_progressController.add);
+    _firebaseRepo.listenForUser();
+
+    _firebaseRepo.authStatus.listen(_controller.add);
   }
 
   // Shared preferences keys
@@ -65,7 +68,6 @@ class AuthRepo {
 
   // table names
   final String _tblUsers = 'users';
-  final String _tblUserDetails = 'user_details';
 
   final LocalData _db;
   final SharedPrefs _prefs;
@@ -115,8 +117,8 @@ class AuthRepo {
     appId ??= '1efc7d35-7fd0-6000-a000-0123456789ac';
     await _prefs.set(_keyAppId, appId);
     final currentToken = await _prefs.getString(_keyCurrentToken);
-    final userId = await _prefs.getString(_keyId);
-    log('USER ID: $userId');
+    // final userId = await _prefs.getString(_keyId);
+    // log('USER ID: $userId');
     final token = await _prefs.getString(_keyToken);
     _net.init(
       deviceId: deviceId,
@@ -129,17 +131,10 @@ class AuthRepo {
 
   /// Pipe function to check if token has been refreshed
   Future<dynamic> callService(Future<OpStatus?> Function() nextFunction) async {
-    var response = await nextFunction.call();
+    final response = await nextFunction.call();
     if (response?.code == 700) {
       log('Access Token Expired');
-      final res = await refreshAccessToken();
-      if (res.success) {
-        final data = res.data as JsonMap;
-        await _prefs.set(_keyToken, data['accessToken']);
-        await _prefs.set(_keyCurrentToken, data['refreshToken']);
-        await _initNetworkApi();
-        response = await nextFunction.call();
-      }
+      refreshSession();
     }
     if (response?.code == 800) {
       log('Session Expired');
@@ -174,7 +169,6 @@ class AuthRepo {
     await _saveAppVersion();
     final id = await _prefs.getString(_keyId);
     final token = await _prefs.getString(_keyToken);
-    // log('USER Token: $token');
     if (token == null) {
       await logOut();
       return false;
@@ -207,80 +201,13 @@ class AuthRepo {
   /// refreshes the session so a user is required to login before proceeding
   void refreshSession() => _controller.add(AuthStatus.expired);
 
-  /// User Registration
-  Future<OpStatus> refreshAccessToken() async {
-    try {
-      final refreshToken = await _prefs.getString(_keyCurrentToken);
-      final response =
-          await _net.post('refresh_token', {'refreshToken': refreshToken});
-      if (response.isSuccessful()) {
-      } else {
-        await logOut();
-      }
-      return OpStatus.fromResponse(response);
-    } catch (e) {
-      log('Error in registration: $e');
-      _controller.add(AuthStatus.unauthenticated);
-      return OpStatus.unexpected(e.toString());
-    }
-  }
-
-  /// User Registration
-  Future<OpStatus> signup(JsonMap body) async {
-    try {
-      final response = await _net.post('registration', body);
-      if (response.isSuccessful()) {
-        await _getAndAuthUser(response);
-      }
-      return OpStatus.fromResponse(response);
-    } catch (e) {
-      log('Error in registration: $e');
-      _controller.add(AuthStatus.unauthenticated);
-      return OpStatus.unexpected(e.toString());
-    }
-  }
-
-  /// User Login
-  Future<OpStatus> login(JsonMap body) async {
-    try {
-      final response = await _net.post('login', body);
-      if (response.isSuccessful()) {
-        await _getAndAuthUser(response);
-      }
-      return OpStatus.fromResponse(response);
-    } catch (e) {
-      log('Error in login: $e');
-      _controller.add(AuthStatus.unauthenticated);
-      return OpStatus.unexpected(e.toString());
-    }
-  }
-
-  /// Checking If User Has: Password, User Preferences and saving to Local DB.
-  Future<OpStatus> fetchUserDetails(String? userId) async {
-    if (userId == null) return OpStatus.error('User ID is null');
-    try {
-      final response = await _net.get('user/$userId');
-      if (response.isSuccessful()) {
-        final responseData = response.data as Map<String, dynamic>;
-        final userDetails = UserDetails.fromJson(responseData);
-        await _db.insertOne(_tblUserDetails, userDetails.toJsonDb());
-      }
-      return OpStatus.fromResponse(response);
-    } catch (e) {
-      log('Error in fetchUserDetails: $e');
-      return OpStatus.unexpected(e.toString());
-    }
-  }
-
   /// Function to logout
   Future<void> logOut() async {
     await _prefs.deleteValue(_keyId);
     await _prefs.deleteValue(_keyLoggedIn);
     await _db.deleteAll(_tblUsers);
-    await _db.deleteAll(_tblUserDetails);
     await _prefs.deleteValue(_keyToken);
-    // await _auth.signOut();
-    // await _googleSignIn.signOut();
+    await _firebaseRepo.logOut();
     _controller.add(AuthStatus.unauthenticated);
   }
 
@@ -292,22 +219,6 @@ class AuthRepo {
     if (userData == null) return null;
     log('userData: $userData');
     return User.fromDbJson(userData);
-  }
-
-  /*************  ✨ Codeium Command ⭐  *************/
-
-  /// Returns the logged in [UserDetails] object or null.
-  ///
-  /// Checks if the user is logged in and if the user details are saved in the
-  /// local database. If both conditions are true, it returns the
-  /// [UserDetails] object, otherwise it returns null.
-// /******  3ed83dc6-1de2-4006-bb2b-ff4d09617a5a  *******/
-  Future<UserDetails?> getUserDetails() async {
-    final id = await _prefs.getString(_keyId);
-    if (id == null) return null;
-    final userData = await _db.getOne(_tblUserDetails, id);
-    if (userData == null) return null;
-    return UserDetails.fromDbJson(userData);
   }
 
   /// Save app version into shared preferences
@@ -343,22 +254,5 @@ class AuthRepo {
     _controller.close();
     _progressController.close();
     _progressSub.cancel();
-  }
-
-  Future<void> _getAndAuthUser(NetResponse response) async {
-    final responseData = response.data as JsonMap;
-    final accessToken = responseData['accessToken'] as String?;
-    final refreshToken = responseData['refreshToken'] as String?;
-    await _prefs.set(_keyLoggedIn, true);
-    await _prefs.set(_keyToken, accessToken);
-    await _prefs.set(_keyCurrentToken, refreshToken);
-    await _initNetworkApi(token: accessToken);
-    final userMap = responseData['user'] as JsonMap;
-    log('User map from API: $userMap');
-    final user = User.fromJson(userMap);
-    log('User after fromJson: $user');
-    await _db.insertOne(_tblUsers, user.toJsonDb());
-    await _prefs.set(_keyId, user.id);
-    _controller.add(AuthStatus.authenticated);
   }
 }

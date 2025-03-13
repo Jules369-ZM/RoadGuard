@@ -8,7 +8,7 @@ import 'package:road_guard/models/models.dart';
 import 'package:road_guard/utils/strings.dart';
 
 void main() {
-  config = Config.staging();
+  config = Config.staging ();
   bootstrap((prefs) async {
     final token = await prefs.getString('token');
 

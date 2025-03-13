@@ -1,4 +1,12 @@
+import 'dart:async';
+import 'dart:convert';
+import 'dart:developer';
+
+import 'package:auth_repo/auth_repo.dart';
+import 'package:cache/cache.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:flutter/foundation.dart' show kIsWeb;
+import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_data/local_data.dart';
 import 'package:net_source/net_source.dart';
@@ -15,9 +23,11 @@ class FirebaseRepo {
     required bool? isDev,
     required firebase_auth.FirebaseAuth? firebaseAuth,
     required GoogleSignIn? googleSignIn,
+    CacheClient? cache,
   })  : _db = db,
         _prefs = prefs,
         _net = net,
+        _cache = cache ?? CacheClient(),
         _isDev = isDev ?? true,
         _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
@@ -28,6 +38,172 @@ class FirebaseRepo {
   final bool _isDev;
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
+  final CacheClient _cache;
+
+  // Shared preferences keys
+  final String _keyId = 'user_id';
+  final String _keyToken = 'token';
+  final String _keyLoggedIn = 'logged_in';
+  // table names
+  final String _tblUsers = 'users';
+  final _controller = StreamController<AuthStatus>.broadcast();
+
+  ///
+  Stream<AuthStatus> get authStatus async* {
+    // final isLoggedIn = await _checkLoggedIn();
+    // if (isLoggedIn) {
+    // yield AuthStatus.authenticated;
+    // } else {
+    // yield AuthStatus.unauthenticated;
+    // }
+    yield* _controller.stream;
+  }
+
+  /// Whether or not the current environment is web
+  /// Should only be overridden for testing purposes. Otherwise,
+  /// defaults to [kIsWeb]
+  @visibleForTesting
+  bool isWeb = kIsWeb;
+
+  /// User cache key.
+  /// Should only be used for testing purposes.
+  @visibleForTesting
+  static const userCacheKey = '__user_cache_key__';
+
+  /// Returns the current cached user.
+  /// Defaults to [User.empty] if there is no cached user.
+  User get currentUser {
+    return _cache.read<User>(key: userCacheKey) ?? User.empty;
+  }
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Listens for changes in the authentication state of the user.
+  ///
+  /// If a user is authenticated, adds [AuthStatus.authenticated] to the stream.
+  /// If the user is anonymous, adds [AuthStatus.guest] to the stream.
+  /// If an error occurs, logs the error and adds [AuthStatus.unauthenticated]
+  /// to the stream.
+
+// /******  64afe51b-c397-4b68-808b-e5ace61a8cae  *******/
+  Future<void> listenForUser() async {
+    try {
+      _firebaseAuth.authStateChanges().listen((firebaseUser) async {
+        log('firebaseUser: $firebaseUser');
+        if (firebaseUser != null) {
+          final userCred = firebaseUser;
+          final user = User(
+            id: userCred.uid,
+            email: userCred.email,
+            name: userCred.displayName,
+            avatar: userCred.photoURL,
+            phone: userCred.phoneNumber ?? '',
+            role: 'DRIVER',
+            metaData: jsonEncode({
+              'emailVerified': userCred.emailVerified,
+              'providerId': userCred.providerData[0].providerId,
+              'uid': userCred.providerData[0].uid,
+              'displayName': userCred.providerData[0].displayName,
+              'photoUrl': userCred.providerData[0].photoURL,
+              'email': userCred.providerData[0].email,
+              'phoneNumber': userCred.providerData[0].phoneNumber,
+              'provider': userCred.providerData[0].providerId,
+            }),
+          );
+          final t = await userCred.getIdToken();
+          await _prefs.set(_keyToken, t);
+          await _prefs.set(_keyLoggedIn, true);
+          await _prefs.set(_keyId, user.id);
+          await _db.insertOne(_tblUsers, user.toJsonDb());
+          _controller.add(AuthStatus.authenticated);
+        } else if (firebaseUser != null && firebaseUser.isAnonymous) {
+          _controller.add(AuthStatus.guest);
+        } else {
+          _controller.add(AuthStatus.unauthenticated);
+        }
+      });
+    } catch (e) {
+      log('Error in listenForUser: $e');
+      _controller.add(AuthStatus.unauthenticated);
+    }
+  }
+
+  /// Creates a new user with the provided [email] and [password].
+  ///
+  /// Throws a [SignUpWithEmailAndPasswordFailure] if an exception occurs.
+  Future<void> signUp({required String email, required String password}) async {
+    try {
+      await _firebaseAuth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
+    } catch (_) {
+      throw const SignUpWithEmailAndPasswordFailure();
+    }
+  }
+
+  /// Starts the Sign In with Google Flow.
+  ///
+  /// Throws a [LogInWithGoogleFailure] if an exception occurs.
+  Future<void> logInWithGoogle() async {
+    try {
+      late final firebase_auth.AuthCredential credential;
+      if (isWeb) {
+        final googleProvider = firebase_auth.GoogleAuthProvider();
+        final userCredential = await _firebaseAuth.signInWithPopup(
+          googleProvider,
+        );
+        credential = userCredential.credential!;
+      } else {
+        final googleUser = await _googleSignIn.signIn();
+        final googleAuth = await googleUser!.authentication;
+        credential = firebase_auth.GoogleAuthProvider.credential(
+          accessToken: googleAuth.accessToken,
+          idToken: googleAuth.idToken,
+        );
+      }
+
+      await _firebaseAuth.signInWithCredential(credential);
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw LogInWithGoogleFailure.fromCode(e.code);
+    } catch (_) {
+      throw const LogInWithGoogleFailure();
+    }
+  }
+
+  /// Signs in with the provided [email] and [password].
+  ///
+  /// Throws a [LogInWithEmailAndPasswordFailure] if an exception occurs.
+  Future<void> logInWithEmailAndPassword({
+    required String email,
+    required String password,
+  }) async {
+    try {
+      await _firebaseAuth.signInWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
+    } on firebase_auth.FirebaseAuthException catch (e) {
+      throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
+    } catch (_) {
+      throw const LogInWithEmailAndPasswordFailure();
+    }
+  }
+
+  /// Signs out the current user which will emit
+  /// [firebase_auth.User] from the [] Stream.
+  ///
+  /// Throws a [LogOutFailure] if an exception occurs.
+  Future<void> logOut() async {
+    try {
+      await Future.wait([
+        _firebaseAuth.signOut(),
+        _googleSignIn.signOut(),
+      ]);
+    } catch (_) {
+      throw LogOutFailure();
+    }
+  }
 }
 
 /// {@template sign_up_with_email_and_password_failure}

@@ -9,7 +9,7 @@ class StartState extends Equatable {
     this.message = 'Default Value',
   });
 
-  /// A description for customProperty
+  /// A description for message
   final String message;
 
   @override

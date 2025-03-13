@@ -4,7 +4,8 @@ enum ButtonType { filled, elevated, outlined, text }
 
 class AppButton extends StatelessWidget {
   const AppButton({
-    required this.text, super.key,
+    required this.text,
+    super.key,
     this.loading = false,
     this.icon = Icons.arrow_forward,
     this.loadingText = 'Loading...',
@@ -15,7 +16,7 @@ class AppButton extends StatelessWidget {
   final bool loading;
   final String text;
   final String loadingText;
-  final IconData icon;
+  final IconData? icon;
   final VoidCallback? onPressed;
   final ButtonType type;
 
@@ -25,16 +26,19 @@ class AppButton extends StatelessWidget {
     final shape =
         RoundedRectangleBorder(borderRadius: BorderRadius.circular(4));
     final child = Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(loading ? loadingText : text),
-        const Spacer(),
-        if (loading)
-          const SizedBox.square(
-            dimension: 24,
-            child: CircularProgressIndicator.adaptive(strokeWidth: 2.5),
-          )
-        else
-          Icon(icon),
+        if (icon != null) ...[
+          const Spacer(),
+          if (loading)
+            const SizedBox.square(
+              dimension: 24,
+              child: CircularProgressIndicator.adaptive(strokeWidth: 2.5),
+            )
+          else if (icon != null)
+            Icon(icon),
+        ],
       ],
     );
     switch (type) {

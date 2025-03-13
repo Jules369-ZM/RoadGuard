@@ -14,7 +14,7 @@ class MainBody extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocBuilder<MainCubit, MainState>(
       builder: (context, state) {
-        return Center(child: Text(state.customProperty));
+        return Center(child: Text(state.message));
       },
     );
   }

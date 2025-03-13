@@ -26,7 +26,7 @@ void main() {
       prefs: prefs,
       db: db,
       net: net,
-      isDev: true,
+      isDev: false,
       firebaseAuth: null,
       googleSignIn: null,
     );

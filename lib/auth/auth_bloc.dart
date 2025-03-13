@@ -1,5 +1,4 @@
 import 'dart:async';
-import 'dart:developer';
 
 import 'package:auth_repo/auth_repo.dart';
 import 'package:bloc/bloc.dart';
@@ -14,6 +13,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   AuthBloc(this.repo, this.firebaseRepo) : super(const AuthState()) {
     on<AuthStatusChanged>(_onAuthStatusChanged);
     on<AuthLogoutRequested>(_onAuthLogoutRequested);
+    // firebaseRepo.listenForUser();
 
     _authStatusSubscription = repo.status.listen(
       (status) => add(
@@ -21,14 +21,14 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
       ),
     );
     // _serviceStatusSubscription = firebaseRepo.authState.listen(
-      // (status) {
-        // if (status == 700) {
-          // repo.logOut();
-          // add(
-            // const AuthStatusChanged(AuthStatus.expired),
-          // ); // 700 is the status code for expired token
-        // }
-      // },
+    // (status) {
+    // if (status == 700) {
+    // repo.logOut();
+    // add(
+    // const AuthStatusChanged(AuthStatus.expired),
+    // ); // 700 is the status code for expired token
+    // }
+    // },
     // );
   }
 
@@ -86,7 +86,7 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   Future<User?> _tryGetUser() async {
     try {
       final user = await repo.getUser();
-      log('user1: ${user?.toJson()}');
+      // log('user1: ${user?.toJson()}');
       return user;
     } catch (_) {
       return null;

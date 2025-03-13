@@ -1,0 +1,82 @@
+{
+  "project_info": {
+    "project_number": "333793343250",
+    "project_id": "eworkers-33518",
+    "storage_bucket": "eworkers-33518.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333793343250:android:df5b2fa8cab54c3ba3e5cb",
+        "android_client_info": {
+          "package_name": "com.probase.workers"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4dWWD7REcbmbK8q1YPrCCFveu81TlhPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "333793343250-95if027ssgelr0qkgdhkg0t7hpk9k1ba.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.probase.workers.dev"
+              }
+            }
+          ]
+        }
+      }
+    },
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:333793343250:android:990735f961a26956a3e5cb",
+        "android_client_info": {
+          "package_name": "zm.co.roadguard"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyB4dWWD7REcbmbK8q1YPrCCFveu81TlhPM"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "333793343250-95if027ssgelr0qkgdhkg0t7hpk9k1ba.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.probase.workers.dev"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

@@ -77,6 +77,13 @@ packages:
       url: "https://pub.dev"
     source: hosted
     version: "2.1.1"
+  cache:
+    dependency: transitive
+    description:
+      path: "packages/cache"
+      relative: true
+    source: path
+    version: "0.1.0+1"
   characters:
     dependency: transitive
     description:
@@ -246,7 +253,7 @@ packages:
     source: hosted
     version: "5.14.1"
   firebase_core:
-    dependency: transitive
+    dependency: "direct main"
     description:
       name: firebase_core
       sha256: f4d8f49574a4e396f34567f3eec4d38ab9c3910818dec22ca42b2a467c685d8b
@@ -328,6 +335,29 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  font_awesome_flutter:
+    dependency: "direct main"
+    description:
+      name: font_awesome_flutter
+      sha256: d3a89184101baec7f4600d58840a764d2ef760fe1c5a20ef9e6b0e9b24a07a3a
+      url: "https://pub.dev"
+    source: hosted
+    version: "10.8.0"
+  form_inputs:
+    dependency: "direct main"
+    description:
+      path: "packages/form_inputs"
+      relative: true
+    source: path
+    version: "0.1.0+1"
+  formz:
+    dependency: "direct main"
+    description:
+      name: formz
+      sha256: "382c7be452ff76833f9efa0b2333fec3a576393f6d2c7801725bed502f3d40c3"
+      url: "https://pub.dev"
+    source: hosted
+    version: "0.8.0"
   frontend_server_client:
     dependency: transitive
     description:

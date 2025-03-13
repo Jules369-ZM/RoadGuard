@@ -43,7 +43,7 @@ class NetSource {
         'Accept': 'application/json',
         'Authorization': 'Bearer $token',
         'deviceId': deviceId ?? '',
-        'appId': appId ?? '1efc7d35-7fd0-6000-a000-0123456789ab',
+        'appId': appId ?? '1efc7d35-7fd0-6000-a000-0123456789ac',
         'refreshToken': refreshToken ?? '',
       },
       validateStatus: (status) {

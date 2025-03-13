@@ -1,8 +1,13 @@
 import 'dart:async';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:bloc/bloc.dart';
 import 'package:flutter/widgets.dart';
+import 'package:local_data/local_data.dart';
+import 'package:road_guard/certficate_verifier.dart';
+import 'package:road_guard/models/models.dart';
+import 'package:road_guard/utils/strings.dart';
 
 class AppBlocObserver extends BlocObserver {
   const AppBlocObserver();
@@ -20,7 +25,15 @@ class AppBlocObserver extends BlocObserver {
   }
 }
 
-Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
+typedef AppBuilder = Future<Widget> Function(
+  SharedPrefs prefs,
+);
+Future<void> bootstrap(
+  AppBuilder builder, {
+  AppEnv env = AppEnv.development,
+}) async {
+  WidgetsFlutterBinding.ensureInitialized();
+  HttpOverrides.global = MyHttpOverrides();
   FlutterError.onError = (details) {
     log(details.exceptionAsString(), stackTrace: details.stack);
   };
@@ -28,6 +41,23 @@ Future<void> bootstrap(FutureOr<Widget> Function() builder) async {
   Bloc.observer = const AppBlocObserver();
 
   // Add cross-flavor configuration here
-
-  runApp(await builder());
+  final prefs = await SharedPrefs.init();
+  if (env == AppEnv.production) {
+    baseUrl = 'http://${Config.prod().host}';
+    flavor = '';
+    host = Config.prod().host;
+  } else if (env == AppEnv.development) {
+    baseUrl = 'http://${Config.dev().host}';
+    flavor = 'DEV';
+    host = Config.dev().host;
+  } else {
+    baseUrl = 'http://${Config.staging().host}';
+    flavor = 'STAGING';
+    host = Config.staging().host;
+  }
+  runApp(
+    await builder(
+      prefs,
+    ),
+  );
 }

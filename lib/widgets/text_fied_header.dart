@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:road_guard/app/theme/theme.dart';
 import 'package:road_guard/utils/utils.dart';
 import 'package:road_guard/widgets/app_alerts.dart';
 
@@ -46,11 +45,10 @@ class TextFieldHeader extends StatelessWidget {
           ),
           if (infoText != null)
             IconButton(
-              icon: const Icon(
+              icon: Icon(
                 Icons.info_outline,
                 size: 20,
-                color: orange,
-                // color: Theme.of(context).colorScheme.primary,
+                color: Theme.of(context).colorScheme.primary,
               ),
               onPressed: () => _showInfoDialog(context),
             ),

@@ -1,4 +1,3 @@
-import 'package:auth_repo/auth_repo.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_data/local_data.dart';
@@ -16,14 +15,12 @@ class FirebaseRepo {
     required bool? isDev,
     required firebase_auth.FirebaseAuth? firebaseAuth,
     required GoogleSignIn? googleSignIn,
-    required AuthRepo authRepo,
   })  : _db = db,
         _prefs = prefs,
         _net = net,
         _isDev = isDev ?? true,
         _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
-        _googleSignIn = googleSignIn ?? GoogleSignIn.standard(),
-        _authRepo = authRepo;
+        _googleSignIn = googleSignIn ?? GoogleSignIn.standard();
 
   final LocalData _db;
   final SharedPrefs _prefs;
@@ -31,7 +28,6 @@ class FirebaseRepo {
   final bool _isDev;
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
-  final AuthRepo _authRepo;
 }
 
 /// {@template sign_up_with_email_and_password_failure}

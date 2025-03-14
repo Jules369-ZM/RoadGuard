@@ -15,6 +15,7 @@ class SignUpCubit extends Cubit<SignUpState> {
     final email = Email.dirty(value);
     emit(
       state.copyWith(
+        message: '',
         email: email,
         isValid: Formz.validate([
           email,
@@ -35,6 +36,7 @@ class SignUpCubit extends Cubit<SignUpState> {
     );
     emit(
       state.copyWith(
+        message: '',
         password: password,
         confirmedPassword: confirmedPassword,
         isValid: Formz.validate([
@@ -55,6 +57,7 @@ class SignUpCubit extends Cubit<SignUpState> {
     );
     emit(
       state.copyWith(
+        message: '',
         confirmedPassword: confirmedPassword,
         isValid: Formz.validate([
           state.email,
@@ -72,6 +75,7 @@ class SignUpCubit extends Cubit<SignUpState> {
     emit(
       state.copyWith(
         name: name,
+        message: '',
         isValid: Formz.validate([
           state.email,
           state.password,
@@ -87,6 +91,7 @@ class SignUpCubit extends Cubit<SignUpState> {
     final phone = PhoneNumber.dirty(value);
     emit(
       state.copyWith(
+        message: '',
         phone: phone,
         isValid: Formz.validate([
           state.email,

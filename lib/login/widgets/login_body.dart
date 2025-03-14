@@ -20,10 +20,11 @@ class LoginBody extends StatelessWidget {
     return BlocConsumer<LoginCubit, LoginState>(
       listener: (context, state) {
         if (state.status == FormzSubmissionStatus.failure) {
+          if (state.message.isEmpty) return;
           showErrorSnackBar(context, message: state.message);
         }
         if (state.status == FormzSubmissionStatus.success) {
-          showErrorSnackBar(context, message: state.message);
+          showSuccessSnackBar(context, message: 'Login successful');
         }
       },
       builder: (context, state) {
@@ -160,6 +161,7 @@ class _SignUpButton extends StatelessWidget {
   Widget build(BuildContext context) {
     return AppButton(
       key: const Key('loginForm_createAccount_flatButton'),
+      // onPressed: () => context.read<LoginCubit>().test(),
       onPressed: () => Navigator.of(context).push<void>(SignUpPage.route()),
       text: 'CREATE ACCOUNT',
       type: ButtonType.text,

@@ -78,20 +78,20 @@ class AuthRepo {
   // final SocketSource _socket;
 
   final _themeController = StreamController<int>();
-
-  Future<void> _initNetworkApi({String? token, String? refreshToken}) async {
-    token ??= await _prefs.getString(_keyToken);
-    refreshToken ??= await _prefs.getString(_keyCurrentToken);
-    final deviceId = await _prefs.getString(_keyDeviceId);
-    final appId = await _prefs.getString(_keyAppId);
-    _net.init(
-      deviceId: deviceId,
-      appId: appId,
-      token: token,
-      refreshToken: refreshToken,
-    );
-  }
-
+//
+  // Future<void> _initNetworkApi({String? token, String? refreshToken}) async {
+  // token ??= await _prefs.getString(_keyToken);
+  // refreshToken ??= await _prefs.getString(_keyCurrentToken);
+  // final deviceId = await _prefs.getString(_keyDeviceId);
+  // final appId = await _prefs.getString(_keyAppId);
+  // _net.init(
+  // deviceId: deviceId,
+  // appId: appId,
+  // token: token,
+  // refreshToken: refreshToken,
+  // );
+  // }
+//
   /*************  ✨ Codeium Command ⭐  *************/
 
   /// Returns the device id used for network requests.
@@ -217,7 +217,6 @@ class AuthRepo {
     if (id == null) return null;
     final userData = await _db.getOne(_tblUsers, id);
     if (userData == null) return null;
-    log('userData: $userData');
     return User.fromDbJson(userData);
   }
 

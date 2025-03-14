@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:developer';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
@@ -15,9 +16,24 @@ class LoginCubit extends Cubit<LoginState> {
     final email = Email.dirty(value);
     emit(
       state.copyWith(
+        message: '',
         email: email,
         isValid: Formz.validate([email, state.password]),
       ),
+    );
+  }
+
+  void test() {
+    firebaseRepo.saveUserDataToFirestore(
+      user: {
+        'id': '1',
+        'name': 'name',
+        'email': 'email',
+        'phone': 'phone',
+        'metaData': 'metaData',
+        'role': 'role',
+        'avatar': 'avatar',
+      },
     );
   }
 
@@ -25,6 +41,7 @@ class LoginCubit extends Cubit<LoginState> {
     final password = Password.dirty(value);
     emit(
       state.copyWith(
+        message: '',
         password: password,
         isValid: Formz.validate([state.email, password]),
       ),
@@ -41,13 +58,15 @@ class LoginCubit extends Cubit<LoginState> {
       );
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } on LogInWithEmailAndPasswordFailure catch (e) {
+      log('Error in logInWithEmailAndPassword: ${e.message}');
       emit(
         state.copyWith(
           message: e.message,
           status: FormzSubmissionStatus.failure,
         ),
       );
-    } catch (_) {
+    } catch (e) {
+      // log('Error in logInWithEmailAndPassword 1: $e');
       emit(state.copyWith(status: FormzSubmissionStatus.failure));
     }
   }

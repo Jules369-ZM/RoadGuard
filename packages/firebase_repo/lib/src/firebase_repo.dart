@@ -94,7 +94,7 @@ class FirebaseRepo {
         log('firebaseUser: $firebaseUser');
         if (firebaseUser != null) {
           final userCred = firebaseUser;
-          final fireStoreUser = await getUserData(userCred.uid);
+          final fireStoreUser = await getUserDataFromFirestore(userCred.uid);
           log('fireStoreUser: $fireStoreUser');
           if (fireStoreUser != null) {
             final user = User.fromJson(fireStoreUser);
@@ -153,32 +153,36 @@ class FirebaseRepo {
           'phoneNumber': userCred.providerData[0].phoneNumber,
           'provider': userCred.providerData[0].providerId,
           'metaData1': metaData,
-          'metaData2': userCred.metadata,
         }),
       );
-      await saveUserData(user: user.toJson());
+      await saveUserDataToFirestore(user: user.toJson());
     } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Error in signUp: $e');
+      log('Error in signUp: ${e.code}');
       throw SignUpWithEmailAndPasswordFailure.fromCode(e.code);
-    } catch (_) {
+    } catch (e) {
+      log('Error in signUp: $e');
       throw const SignUpWithEmailAndPasswordFailure();
     }
   }
 
   /// Save user data to Firestore after registration
-  Future<void> saveUserData({
+  Future<void> saveUserDataToFirestore({
     required JsonMap user,
   }) async {
     try {
       user['createdAt'] = FieldValue.serverTimestamp();
       final uid = user['id'] as String;
+      log('Saving user data: $user');
       await _firestore.collection('users').doc(uid).set(user);
     } catch (e) {
-      throw Exception('Error saving user data: $e');
+      log('Error saving user data: $e');
+      // throw Exception('Error saving user data: $e');
     }
   }
 
   /// Get user details from Firestore
-  Future<Map<String, dynamic>?> getUserData(String uid) async {
+  Future<Map<String, dynamic>?> getUserDataFromFirestore(String uid) async {
     try {
       final doc = await _firestore.collection('users').doc(uid).get();
       return doc.exists ? doc.data() : null;
@@ -208,10 +212,33 @@ class FirebaseRepo {
         );
       }
 
-      await _firebaseAuth.signInWithCredential(credential);
+      final cred = await _firebaseAuth.signInWithCredential(credential);
+      final userCred = cred.user!;
+      final user = User(
+        id: userCred.uid,
+        email: userCred.email ?? '',
+        name: userCred.displayName ?? '',
+        avatar: userCred.photoURL,
+        phone: userCred.phoneNumber ?? '',
+        role: 'DRIVER',
+        metaData: jsonEncode({
+          'emailVerified': userCred.emailVerified,
+          'providerId': userCred.providerData[0].providerId,
+          'uid': userCred.providerData[0].uid,
+          'displayName': userCred.providerData[0].displayName,
+          'photoUrl': userCred.providerData[0].photoURL,
+          'email': userCred.providerData[0].email,
+          'phoneNumber': userCred.providerData[0].phoneNumber,
+          'provider': userCred.providerData[0].providerId,
+          'metaData1': '',
+        }),
+      );
+      await saveUserDataToFirestore(user: user.toJson());
     } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Error in logInWithGoogle 1: ${e.code}');
       throw LogInWithGoogleFailure.fromCode(e.code);
-    } catch (_) {
+    } catch (e) {
+      log('Error in logInWithGoogle: $e');
       throw const LogInWithGoogleFailure();
     }
   }
@@ -229,8 +256,10 @@ class FirebaseRepo {
         password: password,
       );
     } on firebase_auth.FirebaseAuthException catch (e) {
+      log('Error in logInWithEmailAndPassword: ${e.code}');
       throw LogInWithEmailAndPasswordFailure.fromCode(e.code);
-    } catch (_) {
+    } catch (e) {
+      // log('Error in logInWithEmailAndPassword first: $e');
       throw const LogInWithEmailAndPasswordFailure();
     }
   }
@@ -286,12 +315,22 @@ class SignUpWithEmailAndPasswordFailure implements Exception {
           'Please enter a stronger password.',
         );
       default:
-        return const SignUpWithEmailAndPasswordFailure();
+        return SignUpWithEmailAndPasswordFailure(removeHyphen(code));
     }
   }
 
   /// The associated error message.
   final String message;
+}
+/*************  ✨ Codeium Command ⭐  *************/
+/// Removes all hyphens from the given input string.
+///
+/// Takes a [String] [input] and returns a new [String] where
+/// all occurrences of the hyphen character ('-') have been removed.
+
+// /******  56860098-59f2-4214-a849-1efd475f6e3f  *******/
+String removeHyphen(String input) {
+  return input.replaceAll('-', ' ');
 }
 
 /// {@template log_in_with_email_and_password_failure}
@@ -325,7 +364,7 @@ class LogInWithEmailAndPasswordFailure implements Exception {
           'Incorrect password, please try again.',
         );
       default:
-        return const LogInWithEmailAndPasswordFailure();
+        return LogInWithEmailAndPasswordFailure(removeHyphen(code));
     }
   }
 
@@ -380,7 +419,7 @@ class LogInWithGoogleFailure implements Exception {
           'The credential verification ID received is invalid.',
         );
       default:
-        return const LogInWithGoogleFailure();
+        return LogInWithGoogleFailure(removeHyphen(code));
     }
   }
 

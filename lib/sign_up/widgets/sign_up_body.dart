@@ -13,7 +13,16 @@ class SignUpBody extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return BlocBuilder<SignUpCubit, SignUpState>(
+    return BlocConsumer<SignUpCubit, SignUpState>(
+      listener: (context, state) {
+        if (state.status == FormzSubmissionStatus.failure) {
+          if (state.message.isEmpty) return;
+          showErrorSnackBar(context, message: state.message);
+        }
+        if (state.status == FormzSubmissionStatus.success) {
+          showSuccessSnackBar(context, message: 'Sign Up successful');
+        }
+      },
       builder: (context, state) {
         return Align(
           alignment: const Alignment(0, -1 / 3),

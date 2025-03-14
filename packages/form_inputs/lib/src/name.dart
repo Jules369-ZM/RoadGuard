@@ -12,7 +12,7 @@ class Name extends FormzInput<String, NameValidationError> {
   const Name.pure() : super.pure('');
 
   /// Dirty constructor (for modified state)
-  const Name.dirty([String value = '']) : super.dirty(value);
+  const Name.dirty(String? initialValue) : super.dirty(initialValue ?? '');
 
   @override
   NameValidationError? validator(String? value) {

@@ -18,9 +18,8 @@ class MainPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => MainCubit(),
-      child: Scaffold(
-        appBar: AppBar(title: const Text('Home')),
-        body: const MainView(),
+      child: const Scaffold(
+        body: MainView(),
       ),
     );
   }

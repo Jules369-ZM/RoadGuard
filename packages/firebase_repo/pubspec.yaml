@@ -17,6 +17,7 @@ dependencies:
     path: ../cache
   cloud_firestore: ^5.6.5
   firebase_auth: ^5.5.1
+  firebase_storage: ^12.4.4
   flutter:
     sdk: flutter
   google_sign_in: ^6.3.0
@@ -26,4 +27,5 @@ dependencies:
       ref: 25bcb3354fc6171858c62e33d81410192458969f
   net_source:
     path: ../net_source
+  path: ^1.9.0
   uuid: ^4.5.1

@@ -2,10 +2,10 @@ import 'dart:async';
 
 import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
-part 'start_state.dart';
+part 'settings_state.dart';
 
-class StartCubit extends Cubit<StartState> {
-  StartCubit() : super(const StartInitial());
+class SettingsCubit extends Cubit<SettingsState> {
+  SettingsCubit() : super(const SettingsInitial());
 
   /// A description for yourCustomFunction
   FutureOr<void> yourCustomFunction() {

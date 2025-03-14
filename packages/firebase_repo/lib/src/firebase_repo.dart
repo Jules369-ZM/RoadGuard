@@ -1,16 +1,21 @@
+// ignore_for_file: comment_references, unused_local_variable
+
 import 'dart:async';
 import 'dart:convert';
 import 'dart:developer';
+import 'dart:io';
 
 import 'package:auth_repo/auth_repo.dart';
 import 'package:cache/cache.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart' as firebase_auth;
+import 'package:firebase_storage/firebase_storage.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:flutter/material.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 import 'package:local_data/local_data.dart';
 import 'package:net_source/net_source.dart';
+import 'package:path/path.dart';
 
 /// {@template firebase_repo}
 /// For firebase function
@@ -21,28 +26,29 @@ class FirebaseRepo {
     required LocalData db,
     required SharedPrefs prefs,
     required NetSource net,
-    required bool? isDev,
     required firebase_auth.FirebaseAuth? firebaseAuth,
     required GoogleSignIn? googleSignIn,
     FirebaseFirestore? firestore,
     CacheClient? cache,
+    FirebaseStorage? firebaseStorage,
   })  : _db = db,
         _prefs = prefs,
         _net = net,
         _cache = cache ?? CacheClient(),
-        _isDev = isDev ?? true,
         _firebaseAuth = firebaseAuth ?? firebase_auth.FirebaseAuth.instance,
         _googleSignIn = googleSignIn ?? GoogleSignIn.standard(),
+        _firebaseStorage = firebaseStorage ?? FirebaseStorage.instance,
         _firestore = firestore ?? FirebaseFirestore.instance;
 
   final LocalData _db;
   final SharedPrefs _prefs;
+  // ignore: unused_field
   final NetSource _net;
-  final bool _isDev;
   final firebase_auth.FirebaseAuth _firebaseAuth;
   final GoogleSignIn _googleSignIn;
   final CacheClient _cache;
   final FirebaseFirestore _firestore;
+  final FirebaseStorage _firebaseStorage;
 
   // Shared preferences keys
   final String _keyId = 'user_id';
@@ -79,6 +85,37 @@ class FirebaseRepo {
   User get currentUser {
     return _cache.read<User>(key: userCacheKey) ?? User.empty;
   }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Checks if a user with the given [uid] exists in Firestore.
+  ///
+  /// Returns [true] if the user is new, [false] otherwise.
+  ///
+  /// Used to determine if a user is new or not, this function is critical
+  /// for the login flow as it ensures that the user data is not overwritten
+  /// if the user logs in again.
+// /******  e7038d47-3c8c-4566-814c-c7a6755941ff  *******/
+  Future<bool> isNewUser(String uid) async {
+    final doc = await _firestore.collection('users').doc(uid).get();
+    return !doc.exists; // If no document, it's a new user
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Handles the user login flow.
+  ///
+  /// If the user is new, adds them to Firestore.
+  /// If the user is not new, does nothing.
+  ///
+  /// Used to determine if a user is new or not, this function is critical
+  /// for the login flow as it ensures that the user data is not overwritten
+  /// if the user logs in again.
+// /******  edd50996-3367-4a05-b77b-fec94f4ba4db  *******/
+  Future<void> handleUserLogin(User user) async {
+    final isNew = await isNewUser(user.id!);
+    if (isNew) {
+    } else {}
+  }
+
 /*************  ✨ Codeium Command ⭐  *************/
   /// Listens for changes in the authentication state of the user.
   ///
@@ -276,6 +313,385 @@ class FirebaseRepo {
       ]);
     } catch (_) {
       throw LogOutFailure();
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Adds a new document to the given [collectionPath] with the given [id].
+  ///
+  /// The document data is given by [data] and must be a JSON-encodable map.
+  ///
+  /// If the document already exists, its data will be overwritten.
+  ///
+  /// If an exception occurs, it is logged and swallowed.
+// /******  8d8de945-5052-4d94-b6de-f797a6f2e7a7  *******/
+  FutureOr<void> addDocument(
+    JsonMap data,
+    String collectionPath,
+    String id,
+  ) async {
+    try {
+      final docCollectionRef = _firestore.collection(collectionPath).doc(id);
+      await docCollectionRef.set(data);
+    } on Exception catch (e) {
+      log('Error in addDocument: $e');
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Reads all documents from Firestore based on the provided collection path.
+  ///
+  /// Fetches all documents from Firestore based on the provided
+  /// [collectionPath].
+  /// Returns a [Stream] of [List] containing the documents as [JsonMap].
+  ///
+  /// Throws an error if an exception occurs.
+// /******  174756ce-bff8-4514-979f-a1fcf1361473  *******/
+  Stream<List<JsonMap>> readDocuments({required String collectionPath}) =>
+      _firestore.collection(collectionPath).snapshots().map(
+            (snapshot) =>
+                snapshot.docs.map((doc) => doc.data()).toSet().toList(),
+          );
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Reads documents from Firestore based on the provided status.
+  ///
+  /// Fetches documents from Firestore filtered by the provided [status].
+  /// Returns a list of [JsonMap] containing the documents.
+  ///
+  /// Throws an error if an exception occurs.
+// /******  e3979b43-14a7-4f33-84a0-bb08a9be3bb3  *******/
+  Future<List<JsonMap>> readDocumentsByStatus({
+    required String collectionPath,
+    required String status,
+  }) async {
+    try {
+      // Fetch documents from Firestore based on the status
+      final QuerySnapshot snapshot = await _firestore
+          .collection(collectionPath)
+          .where('status', isEqualTo: status) // Filter by status
+          .get();
+      // Map the documents to JsonMap
+      return snapshot.docs.map((doc) => doc.data()! as JsonMap).toList();
+    } catch (e) {
+      // Handle any errors that may occur
+      log('Error reading documents: $e');
+      return []; // Return an empty list on error
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Reads documents from Firestore filtered by the provided [field]
+  ///  and [value].
+  ///
+  /// Fetches documents from Firestore filtered by the provided [field]
+  /// and [value].
+  /// Returns a list of [JsonMap] containing the documents.
+  ///
+  /// Throws an error if an exception occurs.
+// /******  01f8386f-2033-4a5c-b53a-6666cb2d0d95  *******/
+  Future<List<JsonMap>> readDocumentsWhere({
+    required String collectionPath,
+    required String field,
+    required String value,
+  }) async {
+    final documents = <Map<String, dynamic>>[];
+    try {
+      final querySnapshot = await _firestore
+          .collection(collectionPath)
+          .where(
+            field,
+            isEqualTo: value,
+          )
+          .get();
+      final data_ = querySnapshot.docs.map((e) => e.data()).toList();
+      documents.addAll(data_);
+      final data = <String, dynamic>{'data': documents};
+      // if (state.data != null) {
+      // data.addAll(state.data!);
+      // }
+    } catch (e) {
+      log('Error getting documents: $e');
+    }
+    return documents;
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Retrieves documents from Firestore for a specific user.
+  ///
+  /// Fetches documents from the specified [collectionPath] where the [field]
+  /// matches the provided [value]. This function is typically used to get
+  /// documents associated with a particular user based on a user identifier.
+  /// Returns a list of maps containing the document data.
+  ///
+  /// Logs an error message if an exception occurs during the query process.
+
+// /******  6347ae6e-01bb-4bc9-9726-2b01ea7bc6b1  *******/
+  Future<List<Map<String, dynamic>>> getDocumentsByUserId({
+    required String collectionPath,
+    required String field,
+    required String value,
+  }) async {
+    final documents = <Map<String, dynamic>>[];
+    try {
+      final querySnapshot = await _firestore
+          .collection(collectionPath)
+          .where(field, isEqualTo: value)
+          .get();
+      for (final document in querySnapshot.docs) {
+        documents.add(document.data());
+      }
+      final data = <String, dynamic>{'data': documents};
+      // if (state.data != null) {
+      // data.addAll(state.data!);
+      // }
+    } catch (e) {
+      log('Error getting documents: $e');
+    }
+    return documents;
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Reads a document from Firestore based on the provided [collectionPath]
+  /// and [id].
+  ///
+  /// Returns a [JsonMap] containing the document data if the document exists,
+  /// otherwise returns `null`.
+  ///
+  /// Throws an error if an exception occurs.
+// /******  be59476c-b620-43ab-9441-1841b24aecfc  *******/
+  Future<JsonMap?> readDocument({
+    required String collectionPath,
+    required String id,
+  }) async {
+    final ref = _firestore.collection(collectionPath).doc(id);
+    final snapshot = await ref.get();
+    if (snapshot.exists) {
+      return snapshot.data()!;
+    }
+    return null;
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Updates a document in Firestore.
+  ///
+  /// Logs an error message if an exception occurs during the update process.
+// /******  3af5aa0a-1d3a-40f4-8eb7-b07f4b23f113  *******/
+  Future<void> updateDocument({
+    required String collectionPath,
+    required String id,
+    required JsonMap data,
+  }) async {
+    try {
+      final ref = _firestore.collection(collectionPath).doc(id);
+      await ref.update(data);
+    } on Exception catch (e) {
+      log('Error in updateDocument: $e');
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Replaces a document in Firestore with the provided [data].
+  ///
+  /// If a document with the given [id] exists in the specified
+  /// [collectionPath],
+  /// it will be overwritten with the new [data]. If no document exists, a new
+  /// document will be created.
+  ///
+  /// Logs an error message if an exception occurs during the
+  /// replacement process.
+
+// /******  948e378f-c658-4a77-aaa7-898a6a361644  *******/
+  Future<void> replaceDocument({
+    required String collectionPath,
+    required String id,
+    required JsonMap data,
+  }) async {
+    final ref = _firestore.collection(collectionPath).doc(id);
+    await ref.set(data);
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Returns the number of documents in the specified [collectionName].
+  ///
+  /// Returns `0` if an error occurs during the counting process.
+  ///
+  /// Logs an error message if an exception occurs during the counting process.
+// /******  771806bb-79c9-43b1-b191-f43d48c6dce2  *******/
+  Future<int> countDocuments(String collectionName) async {
+    try {
+      final QuerySnapshot querySnapshot =
+          await _firestore.collection(collectionName).get();
+      return querySnapshot.docs.length;
+    } catch (e) {
+      log('Error counting documents: $e');
+      return 0;
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Returns a map with the count of documents in the specified
+  /// [collectionName] with the following statuses:
+  ///
+  /// - 'Pending': The number of documents with status 'Pending'.
+  /// - 'InProgress': The number of documents with status 'In Progress'.
+  /// - 'Complete': The number of documents with status 'Complete'.
+  ///
+  /// Returns a map with all counts set to `0` if an error occurs during the
+  /// counting process. Logs an error message if an exception occurs during the
+  /// counting process.
+// /******  8ed16a92-a663-42b1-86f9-f693fbef739c  *******/
+  Future<Map<String, int>> countDocumentsByStatus(String collectionName) async {
+    try {
+      // Count documents with status 'Pending'
+      final QuerySnapshot pendingSnapshot = await _firestore
+          .collection(collectionName)
+          .where('status', isEqualTo: 'Pending')
+          .get();
+      final pendingCount = pendingSnapshot.docs.length;
+      // Count documents with status 'In Progress'
+      final QuerySnapshot inProgressSnapshot = await _firestore
+          .collection(collectionName)
+          .where('status', isEqualTo: 'In Progress')
+          .get();
+      final inProgressCount = inProgressSnapshot.docs.length;
+      // Count documents with status 'Complete'
+      final QuerySnapshot completeSnapshot = await _firestore
+          .collection(collectionName)
+          .where('status', isEqualTo: 'Complete')
+          .get();
+      final completeCount = completeSnapshot.docs.length;
+      // Return a map with the counts
+      return {
+        'Pending': pendingCount,
+        'InProgress': inProgressCount,
+        'Complete': completeCount,
+      };
+    } catch (e) {
+      log('Error counting documents by status: $e');
+      return {
+        'Pending': 0,
+        'InProgress': 0,
+        'Complete': 0,
+      };
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Uploads the given [imageFile] to the Firebase Cloud Storage and
+  /// returns the
+  /// download URL.
+  ///
+  /// If the upload is successful, the download URL is saved in the Firestore
+  /// document with the given [id].
+  ///
+  /// Returns null if an error occurs during the upload process.
+  ///
+// /******  4bd7b020-dd84-401a-a246-00438d8e7716  *******/
+  Future<String?> uploadImage(File imageFile, JsonMap id) async {
+    try {
+      // Get the file extension
+      final fileName = basename(imageFile.path);
+      final ref = _firebaseStorage.ref().child('images/$fileName');
+      // Upload the image file
+      final uploadTask = ref.putFile(imageFile);
+      // Wait for upload to complete
+      final snapshot = await uploadTask;
+      // Get the download URL
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+      await saveImageUrlToFirestore(downloadUrl, id);
+      return downloadUrl;
+    } catch (e) {
+      log('Error uploading image: $e');
+      return null;
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Saves the given [downloadUrl] to the Firestore collection 'images' with
+  /// the given [id].
+  ///
+  /// The document will contain the following fields:
+  ///
+  /// - 'id': The id of the user who uploaded the image.
+  /// - 'uuid': The uuid of the user who uploaded the image.
+  /// - 'userName': The username of the user who uploaded the image.
+  /// - 'url': The download URL of the uploaded image.
+  /// - 'uploaded_at': The timestamp when the image was uploaded.
+  ///
+  /// Logs an error message if an exception occurs during the saving process.
+// /******  ca93832b-ac3b-4682-a5c2-2603d0feace9  *******/
+  Future<void> saveImageUrlToFirestore(String downloadUrl, JsonMap id) async {
+    try {
+      await _firestore.collection('images').add({
+        'id': id['id'],
+        'uuid': id['uuid'],
+        'userName': id['email'],
+        'url': downloadUrl,
+        'uploaded_at': FieldValue.serverTimestamp(),
+      });
+    } catch (e) {
+      log('Error saving image URL to Firestore: $e');
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Fetches all image URLs from the 'images' collection in Firestore.
+  ///
+  /// Returns an empty list if an error occurs while fetching the image URLs.
+  ///
+  /// This method returns a list of Strings, where each string is the download
+  /// URL of an image.
+// /******  d88187e2-0890-4895-a20c-871a5c062a5d  *******/
+  Future<List<String>> fetchImageUrls() async {
+    try {
+      // Query the Firestore collection for image documents
+      final QuerySnapshot snapshot =
+          await _firestore.collection('images').get();
+
+      // Extract the URLs from the documents
+      final imageUrls = snapshot.docs.map((doc) {
+        return doc['url'] as String; // Assuming each document has a 'url' field
+      }).toList();
+      return imageUrls;
+    } catch (e) {
+      log('Error fetching image URLs: $e');
+      return [];
+    }
+  }
+
+  /// Query images by id or uuid from Firestore
+  Future<List<Map<String, dynamic>>> queryImages({
+    String? id,
+    String? uuid,
+  }) async {
+    try {
+      // Check if either id or uuid is provided
+      if (id == null && uuid == null) {
+        log('Either id or uuid must be provided');
+        return [];
+      }
+
+      // Create a query based on the provided id or uuid
+      Query<Map<String, dynamic>> query = _firestore.collection('images');
+
+      if (id != null) {
+        query = query.where('id', isEqualTo: id);
+      } else if (uuid != null) {
+        query = query.where('uuid', isEqualTo: uuid);
+      }
+
+      // Execute the query
+      final querySnapshot = await query.get();
+
+      // Extract the image documents
+      final images = querySnapshot.docs.map((doc) => doc.data()).toList();
+
+      log('Query returned ${images.length} images');
+      return images;
+    } catch (e) {
+      log('Error querying images from Firestore: $e');
+      return [];
     }
   }
 }

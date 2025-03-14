@@ -5,10 +5,13 @@ import 'package:equatable/equatable.dart';
 part 'main_state.dart';
 
 class MainCubit extends Cubit<MainState> {
-  MainCubit() : super(const MainInitial());
+  MainCubit() : super(const MainState());
 
-  /// A description for yourCustomFunction 
+  /// A description for yourCustomFunction
   FutureOr<void> yourCustomFunction() {
-    // TODO: Add Logic
+  }
+
+  void changeTab(int index) {
+    emit(state.copyWith(currentIndex: index));
   }
 }

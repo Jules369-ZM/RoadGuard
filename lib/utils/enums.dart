@@ -1,3 +1,3 @@
 enum CurrentStatus{
-  initial, loading, error, other, success,
+  initial, loading, error, other, success, uploading, complete
 }

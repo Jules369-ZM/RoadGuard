@@ -402,11 +402,11 @@ class FirebaseRepo {
           .where(
             field,
             isEqualTo: value,
-          )
+          ).orderBy('createdAt', descending: true)
           .get();
       final data_ = querySnapshot.docs.map((e) => e.data()).toList();
       documents.addAll(data_);
-      final data = <String, dynamic>{'data': documents};
+      // final data = <String, dynamic>{'data': documents};
       // if (state.data != null) {
       // data.addAll(state.data!);
       // }

@@ -1,6 +1,8 @@
+
 import 'package:flutter/material.dart';
 import 'package:net_source/net_source.dart';
 import 'package:road_guard/drivers_license/cubit/cubit.dart';
+import 'package:road_guard/drivers_license/view/update_page.dart';
 import 'package:road_guard/drivers_license/widgets/view_driver_license.dart';
 import 'package:road_guard/models/models.dart';
 import 'package:road_guard/utils/enums.dart';
@@ -34,6 +36,7 @@ class _DriverLicenseListView extends StatelessWidget {
         final driversLicenses =
             state.data?['driversLicenses'] as List<JsonMap>? ?? [];
         if (driversLicenses.isEmpty) {
+          context.read<DriversLicenseCubit>().updateAction('Add');
           return const MessageScreen(message: 'No drivers licenses found');
         }
         final licenses = driversLicenses.map(DriverLicense.fromMap).toList();
@@ -53,15 +56,27 @@ class _DriverLicenseListView extends StatelessWidget {
                     context: context,
                     isScrollControlled: true,
                     builder: (c) {
-                      return ActionSheet(
-                        actions: [
-                          ViewDriversLicenseBody(license: license),
-                        ],
+                      return SizedBox(
+                        height: MediaQuery.of(context).size.height * 0.8,
+                        child: ActionSheet(
+                          title: "Driver's License",
+                          actions: [
+                            ViewDriversLicenseBody(
+                              license: license,
+                              onTap: () {
+                                Navigator.pop(c);
+                                Navigator.push(
+                                  context,
+                                  UpdateDriverLicensePage.route(license),
+                                );
+                              },
+                            ),
+                          ],
+                        ),
                       );
                     },
                   );
                 },
-                contentPadding: EdgeInsets.zero,
                 leading: license.image != null
                     ? ClipRRect(
                         borderRadius: BorderRadius.circular(8),
@@ -78,17 +93,12 @@ class _DriverLicenseListView extends StatelessWidget {
                   style: const TextStyle(fontWeight: FontWeight.bold),
                 ),
                 subtitle: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     Text('License No: ${license.licenseNumber}'),
-                    Text(
-                      '''Issued Date: ${license.issuedDate.toLocal()}'''
-                          .split(' ')[0],
-                    ),
-                    Text(
-                      // ignore: lines_longer_than_80_chars
-                      '${'''Expiry Date: ${license.expiryDate.toLocal()}'''.split(' ')[0]}\n'
-                      '',
-                    ),
+                    Text('Issued Date: ${license.formattedIssuedDate}'),
+                    Text('Expiry Date: ${license.formattedExpiryDate}'),
+                    const Divider(),
                     Text(
                       'Status: ${license.currentStatus}',
                       style: TextStyle(

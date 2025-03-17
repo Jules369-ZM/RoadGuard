@@ -402,7 +402,8 @@ class FirebaseRepo {
           .where(
             field,
             isEqualTo: value,
-          ).orderBy('createdAt', descending: true)
+          )
+          .orderBy('createdAt', descending: true)
           .get();
       final data_ = querySnapshot.docs.map((e) => e.data()).toList();
       documents.addAll(data_);
@@ -603,6 +604,86 @@ class FirebaseRepo {
       return downloadUrl;
     } catch (e) {
       log('Error uploading image: $e');
+      return null;
+    }
+  }
+
+/*************  ✨ Codeium Command ⭐  *************/
+  /// Updates the image associated with the given [id] in Firestore.
+  ///
+  /// If the given [id] already has an image associated with it in Firestore,
+  /// this function will delete the old image from Firebase Storage and upload
+  /// the new [imageFile] in its place.
+  ///
+  /// If the upload is successful, the new image URL is saved in the Firestore
+  /// document with the given [id].
+  ///
+  /// Returns null if an error occurs during the upload process.
+// /******  c58d1bbe-439e-4a5f-a4b2-5828a3e0b54f  *******/
+  Future<String?> updateImage(
+    File imageFile,
+    JsonMap id,
+    String collection,
+  ) async {
+    try {
+      // Get the file extension
+      final fileName = basename(imageFile.path);
+      final ref = _firebaseStorage.ref().child('images/$fileName');
+
+      // Fetch the existing image URL from Firestore (assuming you have the old
+      // URL saved in Firestore)
+      final currentUrl = await getImageUrlFromFirestore(
+        id,
+        collection,
+      ); // Function to get current image URL from Firestore
+
+      // If the current image URL exists, delete it from Firebase Storage
+      if (currentUrl != null && currentUrl.isNotEmpty) {
+        final oldRef = _firebaseStorage.refFromURL(currentUrl);
+        await oldRef.delete(); // Delete the old image
+        log('Old image deleted successfully');
+      }
+
+      // Upload the new image file
+      final uploadTask = ref.putFile(imageFile);
+      final snapshot = await uploadTask;
+
+      // Get the download URL of the new image
+      final downloadUrl = await snapshot.ref.getDownloadURL();
+
+      // Update the Firestore document with the new image URL
+      await saveImageUrlToFirestore(
+        downloadUrl,
+        id,
+      ); // Function to save the new URL to Firestore
+
+      return downloadUrl;
+    } catch (e) {
+      log('Error updating image: $e');
+      return null;
+    }
+  }
+
+  ///Function to fetch the current image URL from Firestore
+  /// (based on the document ID)
+  Future<String?> getImageUrlFromFirestore(
+    JsonMap id,
+    String collection,
+  ) async {
+    try {
+      final docSnapshot = await FirebaseFirestore.instance
+          .collection(collection) // Replace with your collection
+          .doc(id['id'] as String) // Use the correct field for the document ID
+          .get();
+
+      if (docSnapshot.exists) {
+        final data = docSnapshot.data();
+        return data?['imageUrl'] as String;
+      } else {
+        return null;
+      }
+    } catch (e) {
+      log('Error fetching image URL from Firestore: $e');
       return null;
     }
   }

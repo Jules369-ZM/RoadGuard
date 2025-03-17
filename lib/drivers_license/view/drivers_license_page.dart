@@ -20,7 +20,8 @@ class DriversLicensePage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final action = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+    final action =
+        ModalRoute.of(context)?.settings.arguments as String? ?? 'View';
     return BlocProvider(
       create: (context) =>
           DriversLicenseCubit(context.read())..updateAction(action),
@@ -38,17 +39,21 @@ class DriversLicenseView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final action = ModalRoute.of(context)?.settings.arguments as String? ?? '';
+    final action =
+        ModalRoute.of(context)?.settings.arguments as String? ?? 'View';
     final user = context.watch<AuthBloc>().state.user;
-    var title = '';
-    if (action == 'Add') title = "Add Driver's License";
-    if (action == 'View') title = "Driver's Licenses";
-    if (action == 'Update') title = "Update Driver's License";
+
     if (action == 'View') {
       context.read<DriversLicenseCubit>().getDriversLicenses(user.email!);
     }
     return Scaffold(
-      appBar: AppBar(title: Text(title)),
+      appBar: AppBar(
+        title: BlocBuilder<DriversLicenseCubit, DriversLicenseState>(
+          builder: (context, state) {
+            return Text(state.title);
+          },
+        ),
+      ),
       body: const DriversLicenseBody(),
     );
   }

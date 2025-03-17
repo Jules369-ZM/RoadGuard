@@ -72,7 +72,7 @@ class _AddDriversLicenseBodyState extends State<AddDriversLicenseBody> {
 
   // Submit form data
   void _submitForm() {
-    final user = context.watch<AuthBloc>().state.user;
+    final user = context.read<AuthBloc>().state.user;
 
     if (_formKey.currentState?.validate() ?? false) {
       final image = _licenseImage;
@@ -98,115 +98,123 @@ class _AddDriversLicenseBodyState extends State<AddDriversLicenseBody> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      body: Padding(
-        padding: EdgeInsets.all(getProportionateScreenHeight(16)),
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            children: [
-              // Name Field
-              TextFormField(
-                controller: _nameController,
-                decoration: const InputDecoration(
-                  labelText: 'Name',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your name';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // License Number Field
-              TextFormField(
-                controller: _licenseNumberController,
-                decoration: const InputDecoration(
-                  labelText: 'License Number',
-                  border: OutlineInputBorder(),
-                ),
-                validator: (value) {
-                  if (value == null || value.isEmpty) {
-                    return 'Please enter your license number';
-                  }
-                  return null;
-                },
-              ),
-              const SizedBox(height: 16),
-
-              // Expiry Date Picker
-              GestureDetector(
-                onTap: _selectExpiryDate,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: _expiryDate == null
-                          ? 'Expiry Date'
-                          : '${_expiryDate?.toLocal()}'.split(' ')[0],
-                      border: const OutlineInputBorder(),
+    return BlocBuilder<DriversLicenseCubit, DriversLicenseState>(
+      builder: (context, state) {
+        return Scaffold(
+          body: Padding(
+            padding: EdgeInsets.all(getProportionateScreenHeight(16)),
+            child: Form(
+              key: _formKey,
+              child: ListView(
+                children: [
+                  // Name Field
+                  TextFormField(
+                    controller: _nameController,
+                    decoration: const InputDecoration(
+                      labelText: 'Name',
+                      border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (_expiryDate == null) {
-                        return 'Please select an expiry date';
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your name';
                       }
                       return null;
                     },
                   ),
-                ),
-              ),
-              SizedBox(height: getProportionateScreenHeight(16)),
+                  const SizedBox(height: 16),
 
-              // Issued Date Picker
-              GestureDetector(
-                onTap: _selectIssuedDate,
-                child: AbsorbPointer(
-                  child: TextFormField(
-                    decoration: InputDecoration(
-                      labelText: _issuedDate == null
-                          ? 'Issued Date'
-                          : '${_issuedDate?.toLocal()}'.split(' ')[0],
-                      border: const OutlineInputBorder(),
+                  // License Number Field
+                  TextFormField(
+                    controller: _licenseNumberController,
+                    decoration: const InputDecoration(
+                      labelText: 'License Number',
+                      border: OutlineInputBorder(),
                     ),
                     validator: (value) {
-                      if (_issuedDate == null) {
-                        return 'Please select an issued date';
+                      if (value == null || value.isEmpty) {
+                        return 'Please enter your license number';
                       }
                       return null;
                     },
                   ),
-                ),
-              ),
-              SizedBox(height: getProportionateScreenHeight(16)),
+                  const SizedBox(height: 16),
 
-              // License Image Picker
-              GestureDetector(
-                onTap: _pickImage,
-                child: Container(
-                  width: double.infinity,
-                  height: 200,
-                  decoration: BoxDecoration(
-                    color: Colors.grey.shade200,
-                    borderRadius: BorderRadius.circular(12),
-                  ),
-                  child: _licenseImage == null
-                      ? const Center(child: Text('Tap to add image'))
-                      : Image.file(
-                          File(_licenseImage!.path),
-                          fit: BoxFit.cover,
+                  // Expiry Date Picker
+                  GestureDetector(
+                    onTap: _selectExpiryDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: _expiryDate == null
+                              ? 'Expiry Date'
+                              : '${_expiryDate?.toLocal()}'.split(' ')[0],
+                          border: const OutlineInputBorder(),
                         ),
-                ),
-              ),
-              SizedBox(height: getProportionateScreenHeight(16)),
+                        validator: (value) {
+                          if (_expiryDate == null) {
+                            return 'Please select an expiry date';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: getProportionateScreenHeight(16)),
 
-              // Submit Button
-              AppButton(text: 'Submit', onPressed: _submitForm),
-            ],
+                  // Issued Date Picker
+                  GestureDetector(
+                    onTap: _selectIssuedDate,
+                    child: AbsorbPointer(
+                      child: TextFormField(
+                        decoration: InputDecoration(
+                          labelText: _issuedDate == null
+                              ? 'Issued Date'
+                              : '${_issuedDate?.toLocal()}'.split(' ')[0],
+                          border: const OutlineInputBorder(),
+                        ),
+                        validator: (value) {
+                          if (_issuedDate == null) {
+                            return 'Please select an issued date';
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: getProportionateScreenHeight(16)),
+
+                  // License Image Picker
+                  GestureDetector(
+                    onTap: _pickImage,
+                    child: Container(
+                      width: double.infinity,
+                      height: 200,
+                      decoration: BoxDecoration(
+                        color: Colors.grey.shade200,
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: _licenseImage == null
+                          ? const Center(child: Text('Tap to add image'))
+                          : Image.file(
+                              File(_licenseImage!.path),
+                              fit: BoxFit.cover,
+                            ),
+                    ),
+                  ),
+                  SizedBox(height: getProportionateScreenHeight(16)),
+
+                  // Submit Button
+                  AppButton(
+                    loading: state.isLoading,
+                    text: 'Submit',
+                    onPressed: _submitForm,
+                  ),
+                ],
+              ),
+            ),
           ),
-        ),
-      ),
+        );
+      },
     );
   }
 }

@@ -19,7 +19,11 @@ class DriversLicenseCubit extends Cubit<DriversLicenseState> {
 
   Future<void> updateAction(String action) async {
     if (isClosed) return;
-    emit(state.copyWith(action: action));
+    var title = '';
+    if (action == 'Add') title = "Add Driver's License";
+    if (action == 'View') title = "Driver's Licenses";
+    if (action == 'Update') title = "Update Driver's License";
+    emit(state.copyWith(action: action, title: title));
   }
 
   // void addDriversLicense(Map<String, Object?> data) {}
@@ -31,42 +35,52 @@ class DriversLicenseCubit extends Cubit<DriversLicenseState> {
     String uuid,
     User user,
   ) async {
-    if (isClosed) return;
-    emit(state.copyWith(status: CurrentStatus.loading));
-    if (image == null) {
-      emit(
-        state.copyWith(
-          message: 'No image selected',
-          status: CurrentStatus.error,
-        ),
-      );
-      return;
-    }
-    if (isClosed) return;
-    emit(
-      state.copyWith(
-        message: 'Uploading...',
-        status: CurrentStatus.loading,
-      ),
-    );
-    final imageFile = File(image.path);
-    final imageUrl = await firebaseRepo.uploadImage(imageFile, {
-      'uuid': uuid,
-      'id': uuid.hashCode,
-      'email': user.email,
-    });
-    if (imageUrl != null) {
-      data['image'] = imageUrl;
-      await firebaseRepo.addDocument(
-        data,
-        driverLicense,
-        uuid,
-      );
+    try {
+      if (isClosed) return;
+      emit(state.copyWith(status: CurrentStatus.loading));
+      if (image == null) {
+        emit(
+          state.copyWith(
+            message: 'No image selected',
+            status: CurrentStatus.error,
+          ),
+        );
+        return;
+      }
       if (isClosed) return;
       emit(
         state.copyWith(
-          message: 'License uploaded successfully',
-          status: CurrentStatus.success,
+          message: 'Uploading...',
+          status: CurrentStatus.loading,
+        ),
+      );
+      final imageFile = File(image.path);
+      final imageUrl = await firebaseRepo.uploadImage(imageFile, {
+        'uuid': uuid,
+        'id': uuid.hashCode,
+        'email': user.email,
+      });
+      if (imageUrl != null) {
+        data['image'] = imageUrl;
+        await firebaseRepo.addDocument(
+          data,
+          driverLicense,
+          uuid,
+        );
+        if (isClosed) return;
+        emit(
+          state.copyWith(
+            message: 'License uploaded successfully',
+            status: CurrentStatus.success,
+          ),
+        );
+      }
+    } catch (e) {
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          message: e.toString(),
+          status: CurrentStatus.error,
         ),
       );
     }
@@ -116,23 +130,35 @@ class DriversLicenseCubit extends Cubit<DriversLicenseState> {
       ),
     );
     final imageFile = image;
-    final imageUrl = await firebaseRepo.uploadImage(imageFile, {
-      'uuid': driverLicense1.uuid,
-      'id': driverLicense1.uuid.hashCode,
-      'email': driverLicense1.email,
-    });
+    final imageUrl = await firebaseRepo.updateImage(
+      imageFile,
+      {
+        'uuid': driverLicense1.uuid,
+        'id': driverLicense1.uuid.hashCode,
+        'email': driverLicense1.email,
+      },
+      images,
+    );
     if (imageUrl != null) {
       data['image'] = imageUrl;
-      await firebaseRepo.addDocument(
-        data,
-        driverLicense,
-        driverLicense1.uuid,
+      await firebaseRepo.updateDocument(
+        collectionPath: driverLicense,
+        id: driverLicense1.uuid,
+        data: data,
       );
       if (isClosed) return;
       emit(
         state.copyWith(
           message: 'License uploaded successfully',
           status: CurrentStatus.success,
+        ),
+      );
+    } else {
+      if (isClosed) return;
+      emit(
+        state.copyWith(
+          message: 'Image upload failed',
+          status: CurrentStatus.error,
         ),
       );
     }

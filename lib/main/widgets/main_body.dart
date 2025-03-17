@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:road_guard/drivers_license/drivers_license.dart';
 import 'package:road_guard/home/view/home_page.dart';
 import 'package:road_guard/main/cubit/cubit.dart';
 import 'package:road_guard/notifications/view/notifications_page.dart';
@@ -42,6 +43,10 @@ class MainBody extends StatelessWidget {
                   label: 'Home',
                 ),
                 BottomNavigationBarItem(
+                  icon: Icon(Icons.credit_card),
+                  label: 'License',
+                ),
+                BottomNavigationBarItem(
                   icon: Icon(Icons.notifications),
                   label: 'Notifications',
                 ),
@@ -62,6 +67,7 @@ class MainBody extends StatelessWidget {
       index: index,
       children: const [
         HomePage(),
+        DriversLicensePage(),
         NotificationsPage(),
         SettingsPage(),
       ],

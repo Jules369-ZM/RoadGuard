@@ -1,7 +1,8 @@
 import 'package:equatable/equatable.dart';
+import 'package:intl/intl.dart';
 
 class DriverLicense extends Equatable {
-  const DriverLicense( {
+  const DriverLicense({
     required this.uuid,
     required this.email,
     required this.name,
@@ -37,6 +38,12 @@ class DriverLicense extends Equatable {
 
   /// Check if the driver's license is expired
   bool get isExpired => DateTime.now().isAfter(expiryDate);
+
+  /// Get the formatted expiry date in "yyyy-MM-dd" format
+  String get formattedExpiryDate => DateFormat('yyyy-MM-dd').format(expiryDate);
+
+  /// Get the formatted issued date in "yyyy-MM-dd" format
+  String get formattedIssuedDate => DateFormat('yyyy-MM-dd').format(issuedDate);
 
   /// Check if the driver's license is expired
   String get currentStatus => isExpired ? 'Expired' : 'Active';

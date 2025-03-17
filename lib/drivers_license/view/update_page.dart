@@ -29,7 +29,9 @@ class _Body extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-
-    return const UpdateDriversLicenseBody();
+    return Scaffold(
+      appBar: AppBar(title: const Text('Update Driver License')),
+      body: const UpdateDriversLicenseBody(),
+    );
   }
 }

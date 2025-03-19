@@ -332,7 +332,10 @@ class FirebaseRepo {
   ) async {
     try {
       final docCollectionRef = _firestore.collection(collectionPath).doc(id);
+
       await docCollectionRef.set(data);
+      //  final ref = _firestore.collection(collectionPath).doc(id);
+      // await ref.update(data);
     } on Exception catch (e) {
       log('Error in addDocument: $e');
     }

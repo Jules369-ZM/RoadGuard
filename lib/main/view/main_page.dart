@@ -17,7 +17,7 @@ class MainPage extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return BlocProvider(
-      create: (context) => MainCubit(),
+      create: (context) => MainCubit(context.read()),
       child: const Scaffold(
         body: MainView(),
       ),

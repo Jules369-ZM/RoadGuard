@@ -1,9 +1,9 @@
 import 'dart:async';
 
 import 'package:auth_repo/auth_repo.dart';
-import 'package:bloc/bloc.dart';
 import 'package:equatable/equatable.dart';
 import 'package:firebase_repo/firebase_repo.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 
 part 'auth_event.dart';
 
@@ -35,12 +35,12 @@ class AuthBloc extends Bloc<AuthEvent, AuthState> {
   final AuthRepo repo;
   final FirebaseRepo firebaseRepo;
   late StreamSubscription<AuthStatus> _authStatusSubscription;
-  late StreamSubscription<int> _serviceStatusSubscription;
+  // late StreamSubscription<int> _serviceStatusSubscription;
 
   @override
   Future<void> close() {
     _authStatusSubscription.cancel();
-    _serviceStatusSubscription.cancel();
+    // _serviceStatusSubscription.cancel();
     repo.dispose();
     return super.close();
   }

@@ -7,28 +7,28 @@ class NotificationsState extends Equatable {
   /// {@macro notifications}
   const NotificationsState({
     this.message = 'Default Value',
+    this.status = CurrentStatus.initial,
+    this.notifications = const [],
   });
 
   /// A description for message
   final String message;
+  final CurrentStatus status;
+  final List<Notification> notifications;
 
   @override
-  List<Object> get props => [message];
+  List<Object> get props => [message, status, notifications];
 
   /// Creates a copy of the current NotificationsState with property changes
   NotificationsState copyWith({
     String? message,
+    CurrentStatus? status,
+    List<Notification>? notifications,
   }) {
     return NotificationsState(
       message: message ?? this.message,
+      status: status ?? this.status,
+      notifications: notifications ?? this.notifications,
     );
   }
-}
-
-/// {@template notifications_initial}
-/// The initial state of NotificationsState
-/// {@endtemplate}
-class NotificationsInitial extends NotificationsState {
-  /// {@macro notifications_initial}
-  const NotificationsInitial() : super();
 }

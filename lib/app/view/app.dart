@@ -1,6 +1,8 @@
 import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:firebase_repo/firebase_repo.dart';
 import 'package:flutter/material.dart';
+import 'package:notifications_repo/notifications_repo.dart';
+import 'package:permission_client/permission_client.dart';
 import 'package:road_guard/app/cubit/app_cubit.dart';
 import 'package:road_guard/app/theme/theme.dart';
 import 'package:road_guard/auth/auth.dart';
@@ -13,15 +15,25 @@ import 'package:road_guard/utils/internet/internet.dart';
 import 'package:road_guard/utils/utils.dart';
 
 class App extends StatelessWidget {
-  const App({required this.authRepo, required this.firebaseRepo, super.key});
+  const App({
+    required this.authRepo,
+    required this.firebaseRepo,
+    required this.permissionClient,
+    required this.notificationsRepo,
+    super.key,
+  });
   final AuthRepo authRepo;
   final FirebaseRepo firebaseRepo;
+  final PermissionClient permissionClient;
+  final NotificationsRepo notificationsRepo;
   @override
   Widget build(BuildContext context) {
     return MultiRepositoryProvider(
       providers: [
         RepositoryProvider.value(value: authRepo),
         RepositoryProvider.value(value: firebaseRepo),
+        RepositoryProvider.value(value: notificationsRepo),
+        RepositoryProvider.value(value: permissionClient),
       ],
       child: MultiBlocProvider(
         providers: [
@@ -48,6 +60,8 @@ class _AppView extends StatelessWidget {
     context.watch<AuthBloc>();
     SizeConfig().init(context);
     context.watch<InternetCubit>().monitorNetworkConnection();
+    
+    
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.expired ||

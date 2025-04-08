@@ -32,15 +32,15 @@ class LoginBody extends StatelessWidget {
           alignment: const Alignment(0, -1 / 3),
           child: SingleChildScrollView(
             padding: EdgeInsets.symmetric(
-              horizontal: getProportionateScreenHeight(32),
+              horizontal: getProportionateScreenHeight(24),
             ),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
-                // Image.asset(
-                // 'assets/bloc_logo_small.png',
-                // height: 120,
-                // ),
+                Image.asset(
+                  'assets/icon.png',
+                  height: 120,
+                ),
                 SizedBox(height: getProportionateScreenHeight(16)),
                 _EmailInput(),
                 SizedBox(height: getProportionateScreenHeight(8)),

@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:road_guard/home/cubit/cubit.dart';
-import 'package:road_guard/home/widgets/home_body_web_view.dart';
+import 'package:road_guard/home/home.dart';
 
 /// {@template home_page}
 /// A description for HomePage
@@ -18,10 +17,10 @@ class HomePage extends StatelessWidget {
   Widget build(BuildContext context) {
     return BlocProvider(
       create: (context) => HomeCubit(),
-      child: SafeArea(
+      child: const SafeArea(
         child: Scaffold(
-          appBar: AppBar(title: const Text('Home')),
-          body: const HomeView(),
+          // appBar: AppBar(title: const Text('Home')),
+          body: SafeArea(child: HomeView()),
         ),
       ),
     );
@@ -37,7 +36,7 @@ class HomeView extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    // return const HomeBody();
-    return const HomeBodyWebView();
+    return const HomeBody();
+    // return const HomeBodyWebView();
   }
 }

@@ -19,12 +19,12 @@ class Notification extends Equatable {
       title: map['title'] as String? ?? '',
       message: map['message'] as String? ?? '',
       body: map['body'] as String? ?? '',
-      timestamp: DateTime.parse(
-        map['timestamp'] as String? ?? DateTime.now().toString(),
-      ),
+      timestamp: DateTime.tryParse(map['timestamp'] as String? ?? '') ??
+          DateTime.now(), // Handle invalid date format
       isRead: map['isRead'] as bool? ?? false,
     );
   }
+
   final String id;
   final String title;
   final String message;
@@ -45,14 +45,21 @@ class Notification extends Equatable {
     };
   }
 
-  // Update the isRead status of the notification
-  Notification copyWith({bool? isRead}) {
+  // Update the isRead status or other fields of the notification
+  Notification copyWith({
+    String? id,
+    String? title,
+    String? message,
+    String? body,
+    DateTime? timestamp,
+    bool? isRead,
+  }) {
     return Notification(
-      id: id,
-      title: title,
-      message: message,
-      body: body,
-      timestamp: timestamp,
+      id: id ?? this.id,
+      title: title ?? this.title,
+      message: message ?? this.message,
+      body: body ?? this.body,
+      timestamp: timestamp ?? this.timestamp,
       isRead: isRead ?? this.isRead,
     );
   }

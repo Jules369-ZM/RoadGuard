@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:road_guard/drivers_license/cubit/cubit.dart';
 import 'package:road_guard/drivers_license/widgets/add_driver_licence.dart';
 import 'package:road_guard/drivers_license/widgets/driver_license_list.dart';
-import 'package:road_guard/drivers_license/widgets/update_driver_license.dart';
 import 'package:road_guard/main/main.dart';
 import 'package:road_guard/utils/enums.dart';
 import 'package:road_guard/widgets/widgets.dart';
@@ -50,7 +49,8 @@ class _DriversLicenseBodyState extends State<DriversLicenseBody> {
           return const DriverLicenseList();
         }
         if (state.action == 'Update') {
-          return const UpdateDriversLicenseBody();
+          return const DriverLicenseList();
+          // return const UpdateDriversLicenseBody();
         }
         return Center(child: Text(state.message));
       },

@@ -1,10 +1,9 @@
-// ignore_for_file: doc_directive_missing_closing_tag
-
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:road_guard/app/theme/theme.dart';
 import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/settings/cubit/cubit.dart';
+import 'package:road_guard/widgets/app_version.dart';
 
 /// {@template settings_body}
 /// Body of the SettingsPage.
@@ -26,13 +25,27 @@ class _SettingsBodyState extends State<SettingsBody> {
     return Scaffold(
       body: Padding(
         padding: const EdgeInsets.all(16),
-        child: ListView(
-          children: <Widget>[
-            _buildUserProfile(user),
-            _buildSectionDivider(),
-            _buildNotificationSettings(),
-            _buildSectionDivider(),
-            _buildLogoutTile(context),
+        child: Column(
+          children: [
+            ListView(
+              shrinkWrap: true,
+              children: <Widget>[
+                _buildUserProfile(user),
+                const SizedBox(height: 16),
+                _buildSectionDivider(),
+                const SizedBox(height: 16),
+                _buildNotificationSettings(),
+                const SizedBox(height: 16),
+                _buildSectionDivider(),
+                const SizedBox(height: 16),
+                _buildLogoutTile(context),
+                const SizedBox(height: 16),
+              ],
+            ),
+            const Spacer(),
+            const AppVersion(),
+            const Divider(),
+            const SizedBox(height: 8),
           ],
         ),
       ),
@@ -44,12 +57,19 @@ class _SettingsBodyState extends State<SettingsBody> {
       padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
         color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withValues(alpha: 0.1),
+            blurRadius: 8,
+            offset: const Offset(0, 2),
+          ),
+        ],
       ),
       child: Row(
         children: [
           CircleAvatar(
-            radius: 30,
+            radius: 32,
             backgroundImage: user.avatar != null
                 ? NetworkImage(user.avatar!)
                 : const AssetImage('assets/person.png') as ImageProvider,
@@ -63,6 +83,7 @@ class _SettingsBodyState extends State<SettingsBody> {
                   user.name ?? 'User Name',
                   style: Theme.of(context).textTheme.titleMedium?.copyWith(
                         fontWeight: FontWeight.bold,
+                        fontSize: 18,
                       ),
                 ),
                 const SizedBox(height: 4),
@@ -73,11 +94,6 @@ class _SettingsBodyState extends State<SettingsBody> {
               ],
             ),
           ),
-          // IconButton(
-          // icon: const Icon(Icons.edit),
-          // onPressed: () {
-          // },
-          // ),
         ],
       ),
     );
@@ -108,23 +124,26 @@ class _SettingsBodyState extends State<SettingsBody> {
       activeColor: Theme.of(context).colorScheme.primary,
       tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
+      contentPadding: EdgeInsets.zero,
     );
   }
 
   Widget _buildLogoutTile(BuildContext context) {
     return ListTile(
-      // dense: true,
       onTap: () async {
         await _showLogoutDialog(context);
       },
       leading: const Icon(Icons.logout, color: Colors.red),
-      title: const Text('Log out'),
+      title: const Text(
+        'Log out',
+        style: TextStyle(fontWeight: FontWeight.bold),
+      ),
       trailing: const Icon(Icons.arrow_forward_ios),
       tileColor: Theme.of(context).colorScheme.surfaceContainerHighest,
       shape: RoundedRectangleBorder(
-        borderRadius: BorderRadius.circular(12),
+        borderRadius: BorderRadius.circular(16),
       ),
     );
   }

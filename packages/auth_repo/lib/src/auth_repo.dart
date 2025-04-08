@@ -190,7 +190,7 @@ class AuthRepo {
 
   /// Get the app theme
   Future<int> getTheme() async {
-    return await _prefs.getInt(_keyTheme, defaultValue: 0) ?? 0;
+    return await _prefs.getInt(_keyTheme, defaultValue: 1) ?? 1;
   }
 
   /// Set the app theme

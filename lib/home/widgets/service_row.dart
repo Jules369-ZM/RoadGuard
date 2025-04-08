@@ -78,13 +78,13 @@ class _DefaultIcon extends StatelessWidget {
       alignment: Alignment.center,
       children: [
         Icon(
-          Icons.phone,
+          Icons.badge,
           color: Theme.of(context).colorScheme.onPrimary,
           size: 32,
         ),
         Positioned(
           top: 20,
-          right: 20,
+          right: 10,
           child: Transform.rotate(
             angle: -0.5,
             child: Icon(

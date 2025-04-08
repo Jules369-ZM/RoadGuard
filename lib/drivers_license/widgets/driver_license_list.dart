@@ -1,4 +1,3 @@
-
 import 'package:flutter/material.dart';
 import 'package:net_source/net_source.dart';
 import 'package:road_guard/drivers_license/cubit/cubit.dart';
@@ -51,6 +50,20 @@ class _DriverLicenseListView extends StatelessWidget {
               elevation: 2,
               margin: const EdgeInsets.symmetric(vertical: 8, horizontal: 16),
               child: ListTile(
+                dense: true,
+                contentPadding: const EdgeInsets.all(8),
+                trailing: IconButton(
+                  icon: const Icon(
+                    Icons.edit,
+                    color: Colors.blue,
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      UpdateDriverLicensePage.route(license),
+                    );
+                  },
+                ),
                 onTap: () {
                   showModalBottomSheet<dynamic>(
                     context: context,
@@ -95,16 +108,16 @@ class _DriverLicenseListView extends StatelessWidget {
                 subtitle: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    Text('License No: ${license.licenseNumber}'),
-                    Text('Issued Date: ${license.formattedIssuedDate}'),
-                    Text('Expiry Date: ${license.formattedExpiryDate}'),
-                    const Divider(),
-                    Text(
-                      'Status: ${license.currentStatus}',
-                      style: TextStyle(
-                        color: isExpired ? Colors.red : Colors.green,
-                        fontWeight: FontWeight.bold,
-                      ),
+                    buildDetailRow('License No:', license.licenseNumber),
+                    // buildDetailRow('Issued Date:',
+                    // license.formattedIssuedDate),
+                    // buildDetailRow('Expiry Date:',
+                    // license.formattedExpiryDate),
+                    // const Divider(),
+                    buildDetailRow(
+                      'Status:',
+                      license.currentStatus,
+                      color: isExpired ? Colors.red : Colors.green,
                     ),
                   ],
                 ),

@@ -1,18 +1,22 @@
-// ignore_for_file: doc_directive_missing_closing_tag
-
 import 'package:flutter/material.dart';
+import 'package:road_guard/models/notification.dart' as noti;
 import 'package:road_guard/notifications/cubit/cubit.dart';
 import 'package:road_guard/utils/enums.dart';
 import 'package:road_guard/widgets/loading_screen.dart';
 import 'package:road_guard/widgets/message_screen.dart';
 import 'package:road_guard/widgets/widgets.dart';
 
-/// {@template notifications_body}
 /// Body of the NotificationsPage.
-///
-class NotificationsBody extends StatelessWidget {
-  /// {@macro notifications_body}
+class NotificationsBody extends StatefulWidget {
   const NotificationsBody({super.key});
+
+  @override
+  NotificationsBodyState createState() => NotificationsBodyState();
+}
+
+class NotificationsBodyState extends State<NotificationsBody> {
+  /// The index of the notification that was tapped
+  int? _selectedNotificationIndex;
 
   @override
   Widget build(BuildContext context) {
@@ -20,34 +24,116 @@ class NotificationsBody extends StatelessWidget {
       builder: (context, state) {
         if (state.status == CurrentStatus.loading) {
           return const LoadingScreen();
-
-
         } else if (state.status == CurrentStatus.success) {
           if (state.notifications.isEmpty) {
             return const MessageScreen(message: 'No notifications available.');
-
           }
 
-          // Display a list of notifications
-          return ListView.builder(
-            itemCount: state.notifications.length,
-            itemBuilder: (context, index) {
-              final notification = state.notifications[index];
-              return ListTile(
-                leading: Icon(notification.isRead
-                    ? Icons.mark_chat_read
-                    : Icons.mark_chat_unread,),
-                title: Text(notification.title),
-                subtitle: Text(notification.message),
-                trailing: Text(
-                  notification.timestamp.toLocal().toString(),
-                  style: const TextStyle(fontSize: 12, color: Colors.grey),
-                ),
-                onTap: () {
-                  // Handle notification tap (e.g., mark as read)
+          return Stack(
+            children: [
+              // Display a list of notifications
+              ListView.builder(
+                itemCount: state.notifications.length,
+                itemBuilder: (context, index) {
+                  final notification = state.notifications[index];
+                  return GestureDetector(
+                    onTap: () {
+                      setState(() {
+                        // Toggle the selected notification
+                        if (_selectedNotificationIndex == index) {
+                          _selectedNotificationIndex = null;
+                        } else {
+                          _selectedNotificationIndex = index;
+                        }
+                      });
+                    },
+                    child: ListTile(
+                      selected: _selectedNotificationIndex == index,
+                      dense: true,
+                      leading: Icon(
+                        notification.isRead
+                            ? Icons.mark_chat_read
+                            : Icons.mark_chat_unread,
+                      ),
+                      title: Text(
+                        notification.title,
+                        style: const TextStyle(
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      subtitle: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(notification.message),
+                          const SizedBox(height: 8),
+                          Text(
+                            notification.timestamp.toLocal().toString(),
+                            style: const TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
                 },
-              );
-            },
+              ),
+
+              // Show the overlay for the selected notification
+              if (_selectedNotificationIndex != null) ...[
+                Positioned(
+                  top: _getOverlayPosition(
+                    state.notifications[_selectedNotificationIndex!],
+                  ),
+                  left: 16,
+                  right: 16,
+                  child: Material(
+                    color: Colors.transparent,
+                    child: Card(
+                      elevation: 8,
+                      child: Padding(
+                        padding: const EdgeInsets.all(16),
+                        child: Column(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            Text(
+                              state.notifications[_selectedNotificationIndex!]
+                                  .title,
+                              style: Theme.of(context).textTheme.headlineSmall,
+                            ),
+                            const SizedBox(height: 8),
+                            Text(
+                              state.notifications[_selectedNotificationIndex!]
+                                  .message,
+                            ),
+                            const Divider(color: Colors.grey),
+                            const SizedBox(height: 8),
+                            Text(
+                              state.notifications[_selectedNotificationIndex!]
+                                  .body,
+                              style: Theme.of(context).textTheme.bodyMedium,
+                            ),
+                            const SizedBox(height: 12),
+                            Text(
+                              state.notifications[_selectedNotificationIndex!]
+                                  .timestamp
+                                  .toLocal()
+                                  .toString(),
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: Colors.grey,
+                              ),
+                            ),
+                            const SizedBox(height: 8),
+                          ],
+                        ),
+                      ),
+                    ),
+                  ),
+                ),
+              ],
+            ],
           );
         } else if (state.status == CurrentStatus.error) {
           return Center(
@@ -73,8 +159,17 @@ class NotificationsBody extends StatelessWidget {
             ),
           );
         } else {
-          return const MessageScreen(message:  'No notifications found')  ;}
+          return const MessageScreen(message: 'No notifications found');
+        }
       },
     );
+  }
+
+  // Determine the position of the overlay based on the tapped notification
+  double _getOverlayPosition(noti.Notification notification) {
+    // You can calculate the exact position of the notification and overlay here
+    // For simplicity, we are returning a fixed position,
+    //but you can adjust this.
+    return 80; // Adjust based on your layout and design
   }
 }

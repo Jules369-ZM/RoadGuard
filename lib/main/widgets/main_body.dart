@@ -29,10 +29,13 @@ class MainBody extends StatefulWidget {
 }
 
 class _MainBodyState extends State<MainBody> {
+  late PageController _pageController;
+
   @override
   void initState() {
     super.initState();
     checkPermissions();
+    _pageController = PageController();
     FirebaseMessaging.instance.getInitialMessage().then(
           (value) {},
         );
@@ -58,26 +61,43 @@ class _MainBodyState extends State<MainBody> {
   }
 
   @override
+  void dispose() {
+    _pageController.dispose();
+    super.dispose();
+  }
+
+  @override
   Widget build(BuildContext context) {
     getToken(context);
 
     return BlocBuilder<MainCubit, MainState>(
       builder: (context, state) {
         return PopScope(
-          canPop: state.currentIndex ==
-              MainBody
-                  .homeTabIndex, // Only allows back navigation if on HomePage
+          canPop: state.currentIndex == MainBody.homeTabIndex,
           onPopInvokedWithResult: (didPop, result) {
             if (!didPop && state.currentIndex != MainBody.homeTabIndex) {
               context.read<MainCubit>().changeTab(MainBody.homeTabIndex);
             }
-            // Handle result if needed
           },
           child: Scaffold(
-            body: _buildBody(state.currentIndex),
+            body: PageView(
+              controller: _pageController,
+              onPageChanged: (index) {
+                context.read<MainCubit>().changeTab(index);
+              },
+              children: const [
+                HomePage(),
+                DriversLicensePage(),
+                NotificationsPage(),
+                SettingsPage(),
+              ],
+            ),
             bottomNavigationBar: BottomNavigationBar(
               currentIndex: state.currentIndex,
-              onTap: (index) => context.read<MainCubit>().changeTab(index),
+              onTap: (index) {
+                _pageController.jumpToPage(index);
+                context.read<MainCubit>().changeTab(index);
+              },
               type: BottomNavigationBarType.fixed,
               selectedItemColor: Colors.blue,
               unselectedItemColor: Colors.grey,
@@ -103,18 +123,6 @@ class _MainBodyState extends State<MainBody> {
           ),
         );
       },
-    );
-  }
-
-  Widget _buildBody(int index) {
-    return IndexedStack(
-      index: index,
-      children: const [
-        HomePage(),
-        DriversLicensePage(),
-        NotificationsPage(),
-        SettingsPage(),
-      ],
     );
   }
 }

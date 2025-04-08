@@ -56,22 +56,22 @@ class ViewDriversLicenseBody extends StatelessWidget {
             // const SizedBox(height: 10),
             const Divider(),
             // License Number
-            _buildDetailRow('License Number', license.licenseNumber),
+            buildDetailRow('License Number', license.licenseNumber),
 
             // Issued Date
-            _buildDetailRow(
+            buildDetailRow(
               'Issued Date',
               '${license.issuedDate.toLocal()}'.split(' ')[0],
             ),
 
             // Expiry Date
-            _buildDetailRow(
+            buildDetailRow(
               'Expiry Date',
               '${license.expiryDate.toLocal()}'.split(' ')[0],
             ),
 
             // Status
-            _buildDetailRow(
+            buildDetailRow(
               'Status',
               license.currentStatus,
               color: isExpired ? Colors.red : Colors.green,
@@ -84,32 +84,32 @@ class ViewDriversLicenseBody extends StatelessWidget {
       ),
     );
   }
+}
 
-  Widget _buildDetailRow(
-    String label,
-    String value, {
-    Color? color,
-    bool isBold = false,
-  }) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(
-            label,
-            style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+Widget buildDetailRow(
+  String label,
+  String value, {
+  Color? color,
+  bool isBold = false,
+}) {
+  return Padding(
+    padding: const EdgeInsets.symmetric(vertical: 4),
+    child: Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(
+          label,
+          style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w500),
+        ),
+        Text(
+          value,
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
+            color: color ?? Colors.black,
           ),
-          Text(
-            value,
-            style: TextStyle(
-              fontSize: 16,
-              fontWeight: isBold ? FontWeight.bold : FontWeight.normal,
-              color: color ?? Colors.black,
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+        ),
+      ],
+    ),
+  );
 }

@@ -60,8 +60,7 @@ class _AppView extends StatelessWidget {
     context.watch<AuthBloc>();
     SizeConfig().init(context);
     context.watch<InternetCubit>().monitorNetworkConnection();
-    
-    
+
     return BlocListener<AuthBloc, AuthState>(
       listener: (context, state) {
         if (state.status == AuthStatus.expired ||

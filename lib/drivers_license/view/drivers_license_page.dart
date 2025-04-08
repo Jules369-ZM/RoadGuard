@@ -43,7 +43,7 @@ class DriversLicenseView extends StatelessWidget {
         ModalRoute.of(context)?.settings.arguments as String? ?? 'View';
     final user = context.watch<AuthBloc>().state.user;
 
-    if (action == 'View') {
+    if (action != 'Add') {
       context.read<DriversLicenseCubit>().getDriversLicenses(user.email!);
     }
     return Scaffold(

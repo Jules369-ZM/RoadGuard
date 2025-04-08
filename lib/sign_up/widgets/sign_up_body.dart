@@ -33,6 +33,10 @@ class SignUpBody extends StatelessWidget {
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
+                Image.asset(
+                  'assets/icon.png',
+                  height: 120,
+                ),
                 _NameInput(),
                 SizedBox(height: getProportionateScreenHeight(8)),
                 _PhoneInput(),

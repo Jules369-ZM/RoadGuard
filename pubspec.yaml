@@ -1,6 +1,6 @@
 name: road_guard
 description: RoadGuard is a smart and user-friendly mobile application designed to enhance road safety and convenience for drivers in Zambia. The app integrates real-time traffic alerts, license renewal reminders, public safety campaigns, and important notifications from the Road Transport and Safety Agency (RTSA).
-version: 1.0.0+1
+version: 1.0.0+3
 publish_to: none
 
 environment:

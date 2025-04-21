@@ -52,7 +52,7 @@ dependencies:
   shimmer: ^3.0.0
   uuid: ^4.5.1
   webview_flutter: ^4.10.0
-  webview_flutter_android: ^4.3.3
+  webview_flutter_android: ^4.4.1
   webview_flutter_wkwebview: ^3.18.4
 
 dev_dependencies:

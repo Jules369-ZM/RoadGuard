@@ -14,6 +14,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   void emailChanged(String value) {
     final email = Email.dirty(value);
+    if (isClosed) return;
     emit(
       state.copyWith(
         message: '',
@@ -39,6 +40,7 @@ class LoginCubit extends Cubit<LoginState> {
 
   void passwordChanged(String value) {
     final password = Password.dirty(value);
+    if (isClosed) return;
     emit(
       state.copyWith(
         message: '',
@@ -56,9 +58,11 @@ class LoginCubit extends Cubit<LoginState> {
         email: state.email.value,
         password: state.password.value,
       );
+      if (isClosed) return;
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } on LogInWithEmailAndPasswordFailure catch (e) {
       log('Error in logInWithEmailAndPassword: ${e.message}');
+      if (isClosed) return;
       emit(
         state.copyWith(
           message: e.message,
@@ -67,16 +71,20 @@ class LoginCubit extends Cubit<LoginState> {
       );
     } catch (e) {
       // log('Error in logInWithEmailAndPassword 1: $e');
+      if (isClosed) return;
       emit(state.copyWith(status: FormzSubmissionStatus.failure));
     }
   }
 
   Future<void> logInWithGoogle() async {
+    if (isClosed) return;
     emit(state.copyWith(status: FormzSubmissionStatus.inProgress));
     try {
       await firebaseRepo.logInWithGoogle();
+      if (isClosed) return;
       emit(state.copyWith(status: FormzSubmissionStatus.success));
     } on LogInWithGoogleFailure catch (e) {
+      if (isClosed) return;
       emit(
         state.copyWith(
           message: e.message,
@@ -84,6 +92,7 @@ class LoginCubit extends Cubit<LoginState> {
         ),
       );
     } catch (_) {
+      if (isClosed) return;
       emit(state.copyWith(status: FormzSubmissionStatus.failure));
     }
   }

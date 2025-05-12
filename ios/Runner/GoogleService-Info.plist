@@ -3,23 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>333793343250-pg9o0i43609036emk3oha4rl21l83g4b.apps.googleusercontent.com</string>
+	<string>343967323817-3no38uio2rjliusls2ru578q5htbjamp.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.333793343250-pg9o0i43609036emk3oha4rl21l83g4b</string>
-	<key>ANDROID_CLIENT_ID</key>
-	<string>333793343250-9kmerjk7tdtldriil4ueccuib5uvv3ru.apps.googleusercontent.com</string>
+	<string>com.googleusercontent.apps.343967323817-3no38uio2rjliusls2ru578q5htbjamp</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCKvnroWrBwwSv8-RmCB3n2v6YuaEWIIJg</string>
+	<string>AIzaSyCw5JvMqscSKR7qjlD8wjYyF2FxrRgkwVs</string>
 	<key>GCM_SENDER_ID</key>
-	<string>333793343250</string>
+	<string>343967323817</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>zm.co.roadguard</string>
+	<string>zm.co.roadguard.app</string>
 	<key>PROJECT_ID</key>
-	<string>eworkers-33518</string>
+	<string>hustle-956f0</string>
 	<key>STORAGE_BUCKET</key>
-	<string>eworkers-33518.firebasestorage.app</string>
+	<string>hustle-956f0.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -31,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:333793343250:ios:be7c5e85a423bcf1a3e5cb</string>
+	<string>1:343967323817:ios:ebf91ff69c293dc5c23bb8</string>
 </dict>
 </plist>

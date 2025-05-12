@@ -50,22 +50,21 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyB4dWWD7REcbmbK8q1YPrCCFveu81TlhPM',
-    appId: '1:333793343250:android:990735f961a26956a3e5cb',
-    messagingSenderId: '333793343250',
-    projectId: 'eworkers-33518',
-    storageBucket: 'eworkers-33518.firebasestorage.app',
+    apiKey: 'AIzaSyATEai6UXDcKCnxQGbYZSDG1kzBS8EOWgk',
+    appId: '1:343967323817:android:c62644973325738bc23bb8',
+    messagingSenderId: '343967323817',
+    projectId: 'hustle-956f0',
+    storageBucket: 'hustle-956f0.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCKvnroWrBwwSv8-RmCB3n2v6YuaEWIIJg',
-    appId: '1:333793343250:ios:be7c5e85a423bcf1a3e5cb',
-    messagingSenderId: '333793343250',
-    projectId: 'eworkers-33518',
-    storageBucket: 'eworkers-33518.firebasestorage.app',
-    androidClientId: '333793343250-9kmerjk7tdtldriil4ueccuib5uvv3ru.apps.googleusercontent.com',
-    iosClientId: '333793343250-pg9o0i43609036emk3oha4rl21l83g4b.apps.googleusercontent.com',
-    iosBundleId: 'zm.co.roadguard',
+    apiKey: 'AIzaSyCw5JvMqscSKR7qjlD8wjYyF2FxrRgkwVs',
+    appId: '1:343967323817:ios:ebf91ff69c293dc5c23bb8',
+    messagingSenderId: '343967323817',
+    projectId: 'hustle-956f0',
+    storageBucket: 'hustle-956f0.firebasestorage.app',
+    iosClientId: '343967323817-3no38uio2rjliusls2ru578q5htbjamp.apps.googleusercontent.com',
+    iosBundleId: 'zm.co.roadguard.app',
   );
 
 }

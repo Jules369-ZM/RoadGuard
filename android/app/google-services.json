@@ -1,84 +1,40 @@
 {
   "project_info": {
-    "project_number": "333793343250",
-    "project_id": "eworkers-33518",
-    "storage_bucket": "eworkers-33518.firebasestorage.app"
+    "project_number": "343967323817",
+    "project_id": "hustle-956f0",
+    "storage_bucket": "hustle-956f0.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:333793343250:android:df5b2fa8cab54c3ba3e5cb",
+        "mobilesdk_app_id": "1:343967323817:android:c62644973325738bc23bb8",
         "android_client_info": {
-          "package_name": "com.probase.workers"
+          "package_name": "zm.co.roadguard.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "333793343250-9kmerjk7tdtldriil4ueccuib5uvv3ru.apps.googleusercontent.com",
-          "client_type": 1,
-          "android_info": {
-            "package_name": "com.probase.workers",
-            "certificate_hash": "c5dc89c4565d2ce037bfa09b4284fc92c457de3b"
-          }
-        },
-        {
-          "client_id": "333793343250-sbabnnct98vrvclhbemol0j5e7hmif11.apps.googleusercontent.com",
+          "client_id": "343967323817-n8urjvk0n9blbqb9a8d5j7r9mkdv4epn.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyB4dWWD7REcbmbK8q1YPrCCFveu81TlhPM"
+          "current_key": "AIzaSyATEai6UXDcKCnxQGbYZSDG1kzBS8EOWgk"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
+              "client_id": "343967323817-n8urjvk0n9blbqb9a8d5j7r9mkdv4epn.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "333793343250-95if027ssgelr0qkgdhkg0t7hpk9k1ba.apps.googleusercontent.com",
+              "client_id": "343967323817-uu45gsdn6hf2rvg62jmcv924k8rphmd5.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "com.probase.workers.dev"
-              }
-            }
-          ]
-        }
-      }
-    },
-    {
-      "client_info": {
-        "mobilesdk_app_id": "1:333793343250:android:990735f961a26956a3e5cb",
-        "android_client_info": {
-          "package_name": "zm.co.roadguard"
-        }
-      },
-      "oauth_client": [
-        {
-          "client_id": "333793343250-sbabnnct98vrvclhbemol0j5e7hmif11.apps.googleusercontent.com",
-          "client_type": 3
-        }
-      ],
-      "api_key": [
-        {
-          "current_key": "AIzaSyB4dWWD7REcbmbK8q1YPrCCFveu81TlhPM"
-        }
-      ],
-      "services": {
-        "appinvite_service": {
-          "other_platform_oauth_client": [
-            {
-              "client_id": "333793343250-j9egnvpqkodqmqin8ra6rg3ben96v9pc.apps.googleusercontent.com",
-              "client_type": 3
-            },
-            {
-              "client_id": "333793343250-95if027ssgelr0qkgdhkg0t7hpk9k1ba.apps.googleusercontent.com",
-              "client_type": 2,
-              "ios_info": {
-                "bundle_id": "com.probase.workers.dev"
+                "bundle_id": "zm.co.roadguard"
               }
             }
           ]

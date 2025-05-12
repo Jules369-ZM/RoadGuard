@@ -90,12 +90,40 @@ class HomeBody extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.only(left: getProportionateScreenWidth(4)),
-          child: Text(
-            "Driver's License",
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+          child: Row(
+            children: [
+              Text(
+                "Driver's License",
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('License Information'),
+                        content: const Text(
+                          '''Manage your driver's license information including: \n\n- Add a new license \n- View your license \n- Update your license''',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.more_horiz),
+                tooltip: 'View statistics description',
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),
@@ -155,12 +183,40 @@ class HomeBody extends StatelessWidget {
       children: [
         Padding(
           padding: EdgeInsets.only(left: getProportionateScreenWidth(4)),
-          child: Text(
-            'Statistics',
-            style: Theme.of(context)
-                .textTheme
-                .titleLarge
-                ?.copyWith(fontWeight: FontWeight.bold),
+          child: Row(
+            children: [
+              Text(
+                'Statistics',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Statistics Information'),
+                        content: const Text(
+                          '''These statistics are based on RTSA (Road Transport and Safety Agency) data. \n\n- Active Vehicle Population \n- Licensed Drivers \n- Traffic Violations''',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.more_horiz),
+                tooltip: 'View statistics description',
+              ),
+            ],
           ),
         ),
         const SizedBox(height: 16),

@@ -1,8 +1,11 @@
+import 'dart:developer';
+
 import 'package:flutter/material.dart';
 import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/drivers_license/drivers_license.dart';
 import 'package:road_guard/home/cubit/cubit.dart';
 import 'package:road_guard/utils/utils.dart';
+import 'package:url_launcher/url_launcher.dart'; // For launching URLs
 
 class HomeBody extends StatelessWidget {
   const HomeBody({super.key});
@@ -25,6 +28,9 @@ class HomeBody extends StatelessWidget {
 
             // --- Driver's License Section ---
             _buildDriversLicenseSection(context),
+            const SizedBox(height: 24),
+            // --- Quick Links Section ---
+            _buildQuickLinksSection(context),
             const SizedBox(height: 24),
 
             // --- Statistics Section ---
@@ -120,13 +126,13 @@ class HomeBody extends StatelessWidget {
                     },
                   );
                 },
-                icon: const Icon(Icons.more_horiz),
-                tooltip: 'View statistics description',
+                icon: const Icon(Icons.help_outline),
+                tooltip: 'View license description',
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Card(
           color: Colors.orange.shade50,
           elevation: 3,
@@ -177,6 +183,96 @@ class HomeBody extends StatelessWidget {
     );
   }
 
+  Widget _buildQuickLinksSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: getProportionateScreenWidth(4)),
+          child: Row(
+            children: [
+              Text(
+                'Quick External Links',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Quick Links'),
+                        content: const Text(
+                          '''View quick links including: \n\n- RTSA Website (Home) \n- Pay Online \n- Traffic Violations''',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.help_outline),
+                tooltip: 'View quick links description',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          color: Colors.orange.shade50,
+          elevation: 3,
+          shadowColor: Colors.orange.withOpacity(0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                _LicenseButton(
+                  icon: Icons.home,
+                  label: 'RTSA Website',
+                  onTap: () {
+                    _launchURL(
+                      'https://www.rtsa.org.zm/',
+                    ); // 'https://www.rtsa.org.zm/');
+                  },
+                ),
+                _LicenseButton(
+                  icon: Icons.payment,
+                  label: 'Pay Online',
+                  onTap: () {
+                    _launchURL(
+                      'https://www.rtsa.org.zm/pay-online/',
+                    ); // 'https://www.rtsa.org.zm/');
+                  },
+                ),
+                _LicenseButton(
+                  icon: Icons.traffic,
+                  label: 'Traffic Offenses',
+                  onTap: () {
+                    _launchURL(
+                      'https://www.rtsa.org.zm/traffic-offences/',
+                    ); // 'https://www.rtsa.org.zm/');
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
   Widget _buildStatisticsSection(BuildContext context) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -213,13 +309,13 @@ class HomeBody extends StatelessWidget {
                     },
                   );
                 },
-                icon: const Icon(Icons.more_horiz),
-                tooltip: 'View statistics description',
+                icon: const Icon(Icons.help_outline),
+                tooltip: 'Explanation of RTSA statistics',
               ),
             ],
           ),
         ),
-        const SizedBox(height: 16),
+        const SizedBox(height: 8),
         Row(
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
@@ -259,7 +355,7 @@ class HomeBody extends StatelessWidget {
         child: Card(
           elevation: 2,
           margin: const EdgeInsets.symmetric(horizontal: 4),
-          shadowColor: color.withValues(alpha: 0.3),
+          shadowColor: color.withOpacity(0.3),
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(12),
           ),
@@ -305,6 +401,21 @@ class HomeBody extends StatelessWidget {
       ),
     );
   }
+
+  /// Function to launch a URL
+  Future<void> _launchURL(String url) async {
+    try {
+      // const url = 'https://www.rtsa.org.zm/';
+      final uri = Uri.parse(url);
+      if (await canLaunchUrl(uri)) {
+        await launchUrl(uri, mode: LaunchMode.externalApplication);
+      } else {
+        log('Could not launch $url');
+      }
+    } catch (e) {
+      log('Error launch $e');
+    }
+  }
 }
 
 class _LicenseButton extends StatelessWidget {
@@ -332,7 +443,7 @@ class _LicenseButton extends StatelessWidget {
               shape: BoxShape.circle,
               boxShadow: [
                 BoxShadow(
-                  color: Colors.orange.withValues(alpha: 0.3),
+                  color: Colors.orange.withOpacity(0.3),
                   spreadRadius: 1,
                   blurRadius: 6,
                   offset: const Offset(0, 3),
@@ -349,7 +460,7 @@ class _LicenseButton extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w500,
+                  fontWeight: FontWeight.w300,
                 ),
           ),
         ],

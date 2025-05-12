@@ -1,11 +1,11 @@
 import 'dart:developer';
-
 import 'package:flutter/material.dart';
+import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/drivers_license/drivers_license.dart';
 import 'package:road_guard/home/cubit/cubit.dart';
 import 'package:road_guard/utils/utils.dart';
-import 'package:url_launcher/url_launcher.dart'; // For launching URLs
+import 'package:url_launcher/url_launcher.dart';
 
 class HomeBody extends StatelessWidget {
   const HomeBody({super.key});
@@ -13,6 +13,7 @@ class HomeBody extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final user = context.watch<AuthBloc>().state.user;
+
     return BlocBuilder<HomeCubit, HomeState>(
       builder: (context, state) {
         return ListView(
@@ -22,6 +23,15 @@ class HomeBody extends StatelessWidget {
           children: [
             const SizedBox(height: 24),
 
+            // --- Greeting ---
+            Text(
+              _getGreeting(),
+              style: Theme.of(context).textTheme.headlineSmall?.copyWith(
+                    fontWeight: FontWeight.bold,
+                  ),
+            ),
+            const SizedBox(height: 8),
+
             // --- Profile Section ---
             _buildProfileSection(context, user),
             const SizedBox(height: 24),
@@ -29,6 +39,7 @@ class HomeBody extends StatelessWidget {
             // --- Driver's License Section ---
             _buildDriversLicenseSection(context),
             const SizedBox(height: 24),
+
             // --- Quick Links Section ---
             _buildQuickLinksSection(context),
             const SizedBox(height: 24),
@@ -40,6 +51,17 @@ class HomeBody extends StatelessWidget {
         );
       },
     );
+  }
+
+  String _getGreeting() {
+    final hour = DateTime.now().hour;
+    if (hour < 12) {
+      return 'Good Morning';
+    } else if (hour < 17) {
+      return 'Good Afternoon';
+    } else {
+      return 'Good Evening';
+    }
   }
 
   Widget _buildProfileSection(BuildContext context, User user) {
@@ -242,27 +264,21 @@ class HomeBody extends StatelessWidget {
                   icon: Icons.home,
                   label: 'RTSA Website',
                   onTap: () {
-                    _launchURL(
-                      'https://www.rtsa.org.zm/',
-                    ); // 'https://www.rtsa.org.zm/');
+                    _launchURL('https://www.rtsa.org.zm/');
                   },
                 ),
                 _LicenseButton(
                   icon: Icons.payment,
                   label: 'Pay Online',
                   onTap: () {
-                    _launchURL(
-                      'https://www.rtsa.org.zm/pay-online/',
-                    ); // 'https://www.rtsa.org.zm/');
+                    _launchURL('https://www.rtsa.org.zm/pay-online/');
                   },
                 ),
                 _LicenseButton(
                   icon: Icons.traffic,
                   label: 'Traffic Offenses',
                   onTap: () {
-                    _launchURL(
-                      'https://www.rtsa.org.zm/traffic-offences/',
-                    ); // 'https://www.rtsa.org.zm/');
+                    _launchURL('https://www.rtsa.org.zm/traffic-offences/');
                   },
                 ),
               ],
@@ -320,23 +336,10 @@ class HomeBody extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildStatCard(
-              context,
-              '695,740',
-              'Active Vehicle Population',
-              Colors.green,
-            ),
+                context, '695,740', 'Active Vehicle Population', Colors.green),
+            _buildStatCard(context, '772,570', 'Licensed Drivers', Colors.blue),
             _buildStatCard(
-              context,
-              '772,570',
-              'Licensed Drivers',
-              Colors.blue,
-            ),
-            _buildStatCard(
-              context,
-              '80,310',
-              'Traffic Violations',
-              Colors.orange,
-            ),
+                context, '80,310', 'Traffic Violations', Colors.orange),
           ],
         ),
       ],
@@ -365,10 +368,7 @@ class HomeBody extends StatelessWidget {
               gradient: LinearGradient(
                 begin: Alignment.topLeft,
                 end: Alignment.bottomRight,
-                colors: [
-                  color.shade50,
-                  Colors.white,
-                ],
+                colors: [color.shade50, Colors.white],
               ),
             ),
             padding: const EdgeInsets.symmetric(vertical: 16, horizontal: 8),
@@ -402,10 +402,8 @@ class HomeBody extends StatelessWidget {
     );
   }
 
-  /// Function to launch a URL
   Future<void> _launchURL(String url) async {
     try {
-      // const url = 'https://www.rtsa.org.zm/';
       final uri = Uri.parse(url);
       if (await canLaunchUrl(uri)) {
         await launchUrl(uri, mode: LaunchMode.externalApplication);
@@ -413,55 +411,38 @@ class HomeBody extends StatelessWidget {
         log('Could not launch $url');
       }
     } catch (e) {
-      log('Error launch $e');
+      log('Failed to launch $url: $e');
     }
   }
 }
 
 class _LicenseButton extends StatelessWidget {
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
+
   const _LicenseButton({
     required this.icon,
     required this.label,
     required this.onTap,
   });
 
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
+    return InkWell(
       onTap: onTap,
+      borderRadius: BorderRadius.circular(12),
       child: Column(
-        mainAxisSize: MainAxisSize.min,
         children: [
-          Container(
-            padding: const EdgeInsets.all(16),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.orange.withOpacity(0.3),
-                  spreadRadius: 1,
-                  blurRadius: 6,
-                  offset: const Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Icon(
-              icon,
-              size: 28,
-              color: Colors.orange.shade600,
-            ),
+          CircleAvatar(
+            backgroundColor: Colors.orange.shade100,
+            radius: 24,
+            child: Icon(icon, color: Colors.orange.shade800),
           ),
-          const SizedBox(height: 12),
+          const SizedBox(height: 8),
           Text(
             label,
-            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  fontWeight: FontWeight.w300,
-                ),
+            style: Theme.of(context).textTheme.labelMedium,
           ),
         ],
       ),

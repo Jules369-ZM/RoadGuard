@@ -20,7 +20,7 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       emit(state.copyWith(status: CurrentStatus.loading));
 
       await Future.delayed(
-        const Duration(seconds: 2),
+        const Duration(seconds: 1),
         () {},
       ); // Simulated delay
 

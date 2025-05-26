@@ -9,7 +9,9 @@
 
 import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-import * as admin from "firebase-admin";
+// import * as admin from "firebase-admin";
+import admin from "firebase-admin";
+
 
 
 // Start writing functions

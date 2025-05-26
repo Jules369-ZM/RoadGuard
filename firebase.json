@@ -1,1 +1,47 @@
-{"flutter":{"platforms":{"android":{"default":{"projectId":"hustle-956f0","appId":"1:343967323817:android:c62644973325738bc23bb8","fileOutput":"android/app/google-services.json"}},"ios":{"default":{"projectId":"hustle-956f0","appId":"1:343967323817:ios:ebf91ff69c293dc5c23bb8","uploadDebugSymbols":false,"fileOutput":"ios/Runner/GoogleService-Info.plist"}},"dart":{"lib/firebase_options.dart":{"projectId":"hustle-956f0","configurations":{"android":"1:343967323817:android:c62644973325738bc23bb8","ios":"1:343967323817:ios:ebf91ff69c293dc5c23bb8"}}}}}}
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "hustle-956f0",
+          "appId": "1:343967323817:android:c62644973325738bc23bb8",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "ios": {
+        "default": {
+          "projectId": "hustle-956f0",
+          "appId": "1:343967323817:ios:ebf91ff69c293dc5c23bb8",
+          "uploadDebugSymbols": false,
+          "fileOutput": "ios/Runner/GoogleService-Info.plist"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "hustle-956f0",
+          "configurations": {
+            "android": "1:343967323817:android:c62644973325738bc23bb8",
+            "ios": "1:343967323817:ios:ebf91ff69c293dc5c23bb8"
+          }
+        }
+      }
+    }
+  },
+  "functions": [
+    {
+      "source": "functions",
+      "codebase": "default",
+      "ignore": [
+        "node_modules",
+        ".git",
+        "firebase-debug.log",
+        "firebase-debug.*.log",
+        "*.local"
+      ],
+      "predeploy": [
+        "npm --prefix \"$RESOURCE_DIR\" run lint",
+        "npm --prefix \"$RESOURCE_DIR\" run build"
+      ]
+    }
+  ]
+}

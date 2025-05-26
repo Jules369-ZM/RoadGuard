@@ -1,26 +1,43 @@
-import { onRequest } from "firebase-functions/v2/https";
+/**
+ * Import function triggers from their respective submodules:
+ *
+ * import {onCall} from "firebase-functions/v2/https";
+ * import {onDocumentWritten} from "firebase-functions/v2/firestore";
+ *
+ * See a full list of supported triggers at https://firebase.google.com/docs/functions
+ */
+
+import {onRequest} from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-// import * as admin from "firebase-admin";
-import admin from "firebase-admin";
+import * as admin from "firebase-admin";
+
+
+// Start writing functions
+// https://firebase.google.com/docs/functions/typescript
+
+// export const helloWorld = onRequest((request, response) => {
+//   logger.info("Hello logs!", {structuredData: true});
+//   response.send("Hello from Firebase!");
+// });
 // Initialize Firebase Admin SDK
 admin.initializeApp();
 
 /**
  * Sends a push notification to a single device.
- * @param {string} token - The FCM token of the device.
- * @param {string} title - The notification title.
- * @param {string} body - The notification body.
- * @param {Record<string, string>} data - The custom data to send with the notification.
+ * @param token - The FCM token of the device.
+ * @param title - The notification title.
+ * @param body - The notification body.
+ * @param data - The custom data to send with the notification.
  */
 async function sendNotification(
   token: string,
   title: string,
   body: string,
-  data: Record<string, string>
+  data: { [key: string]: string }
 ) {
   const message = {
     notification: { title, body },
-    data, // Send custom data here
+    data: data, // Send custom data here
     token,
   };
 
@@ -36,20 +53,20 @@ async function sendNotification(
 
 /**
  * Sends a push notification to multiple devices.
- * @param {string[]} tokens - Array of FCM tokens.
- * @param {string} title - The notification title.
- * @param {string} body - The notification body.
- * @param {Record<string, string>} data - The custom data to send with the notification.
+ * @param tokens - Array of FCM tokens.
+ * @param title - The notification title.
+ * @param body - The notification body.
+ * @param data - The custom data to send with the notification.
  */
 async function sendNotificationToMultipleDevices(
   tokens: string[],
   title: string,
   body: string,
-  data: Record<string, string>
+  data: { [key: string]: string }
 ) {
   const message = {
     notification: { title, body },
-    data, // Send custom data here
+    data: data, // Send custom data here
   };
 
   try {
@@ -68,24 +85,6 @@ async function sendNotificationToMultipleDevices(
 }
 
 /**
- * Fetches the FCM tokens from Firestore from the 'tokens' collection.
- * @return {Promise<string[]>} - A list of FCM tokens.
- */
-async function getFcmTokensFromFirestore(): Promise<string[]> {
-  const tokensSnapshot = await admin.firestore().collection("tokens").get();
-  const tokens: string[] = [];
-
-  tokensSnapshot.forEach((doc) => {
-    const token: string | undefined = doc.data().token; // Explicitly type token
-    if (token) {
-      tokens.push(token);
-    }
-  });
-
-  return tokens;
-}
-
-/**
  * HTTP Trigger to Send Notifications
  */
 export const sendPushNotification = onRequest(async (req, res) => {
@@ -94,19 +93,7 @@ export const sendPushNotification = onRequest(async (req, res) => {
     return;
   }
 
-  const {
-    token,
-    tokens,
-    title,
-    body,
-    data,
-  }: {
-    token?: string;
-    tokens?: string[];
-    title: string;
-    body: string;
-    data: Record<string, string>;
-  } = req.body;
+  const { token, tokens, title, body, data } = req.body;
 
   // Check if required fields are present
   if (!title || !body) {
@@ -116,6 +103,7 @@ export const sendPushNotification = onRequest(async (req, res) => {
 
   let result;
 
+  // Determine whether to send to a single token, multiple tokens, or send data message
   if (token) {
     result = await sendNotification(token, title, body, data);
   } else if (tokens) {
@@ -127,11 +115,36 @@ export const sendPushNotification = onRequest(async (req, res) => {
     return;
   }
 
-  res.status(result.success ? 200 : 500).json(result);
+  // Return success or error response
+  if (result.success) {
+    res.status(200).json({
+      success: true,
+      message: "Notification sent",
+      response: result,
+    });
+  } else {
+    res.status(500).json({ success: false, error: result.error });
+  }
 });
-
 /**
- * HTTP Trigger to Send Notifications Using Tokens from Firestore
+ * Fetches the FCM tokens from Firestore from the 'tokens' collection.
+ * @return {Promise<string[]>} - A list of FCM tokens.
+ */
+async function getFcmTokensFromFirestore(): Promise<string[]> {
+  const tokensSnapshot = await admin.firestore().collection("tokens").get();
+  const tokens: string[] = [];
+
+  tokensSnapshot.forEach((doc) => {
+    const token = doc.data().token; // Access the 'token' field in each document
+    if (token) {
+      tokens.push(token); // Add the token to the list if it exists
+    }
+  });
+
+  return tokens;
+}
+/**
+ * HTTP Trigger to Send Notifications
  */
 export const sendNotificationByGetTokensFromCloudStore = onRequest(
   async (req, res) => {
@@ -140,39 +153,50 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
       return;
     }
 
-    const {
-      title,
-      body,
-      data,
-    }: { title: string; body: string; data: Record<string, string> } = req.body;
+    const { title, body, data } = req.body;
 
+    // Check if required fields are present
     if (!title || !body) {
       res.status(400).json({ error: "Missing required fields: title or body" });
       return;
     }
 
+    let result;
+
     try {
+      // Fetch tokens from Firestore
       const tokens = await getFcmTokensFromFirestore();
+
       if (tokens.length === 0) {
         res.status(400).json({ error: "No tokens found in Firestore" });
         return;
       }
 
-      const result = await sendNotificationToMultipleDevices(
+      // Send notification to all tokens
+      result = await sendNotificationToMultipleDevices(
         tokens,
         title,
         body,
         data
       );
-      res.status(result.success ? 200 : 500).json(result);
     } catch (error) {
       logger.error("Error fetching tokens from Firestore:", error);
-      res
-        .status(500)
-        .json({
-          success: false,
-          error: "Error fetching tokens from Firestore",
-        });
+      res.status(500).json({
+        success: false,
+        error: "Error fetching tokens from Firestore",
+      });
+      return;
+    }
+
+    // Return success or error response
+    if (result.success) {
+      res.status(200).json({
+        success: true,
+        message: "Notification sent",
+        response: result,
+      });
+    } else {
+      res.status(500).json({ success: false, error: result.error });
     }
   }
 );

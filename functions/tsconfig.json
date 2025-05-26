@@ -1,20 +1,17 @@
 {
   "compilerOptions": {
-    "module": "ESNext", // or "commonjs" if you use require
-    "target": "ESNext",
-    "moduleResolution": "node",
-    "outDir": "./lib",
-    // "module": "NodeNext",
-    "skipLibCheck": true,
+    "module": "NodeNext",
     "esModuleInterop": true,
-    // "moduleResolution": "nodenext",
+    "moduleResolution": "nodenext",
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    // "outDir": "lib",
+    "outDir": "lib",
     "sourceMap": true,
-    "strict": true
-    // "target": "es2017"
+    "strict": true,
+    "target": "es2017"
   },
   "compileOnSave": true,
-  "include": ["src/**/*"]
+  "include": [
+    "src"
+  ]
 }

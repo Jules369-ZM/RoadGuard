@@ -84,17 +84,17 @@ android {
         production {
             dimension "default"
             applicationIdSuffix ""
-            manifestPlaceholders = [appName: "Road Guard"]
+            manifestPlaceholders = [appName: "Road User Alert"]
         }
         staging {
             dimension "default"
             applicationIdSuffix ".stg"
-            manifestPlaceholders = [appName: "[STG] Road Guard"]
+            manifestPlaceholders = [appName: "[STG] Road User Alert"]
         }
         development {
             dimension "default"
             applicationIdSuffix ""
-            manifestPlaceholders = [appName: "[DEV] Road Guard"]
+            manifestPlaceholders = [appName: "[DEV] Road User Alert"]
         }
     }
 

@@ -1,6 +1,5 @@
 import 'dart:developer';
 import 'package:flutter/material.dart';
-import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/drivers_license/drivers_license.dart';
 import 'package:road_guard/home/cubit/cubit.dart';
@@ -336,10 +335,10 @@ class HomeBody extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildStatCard(
-                context, '695,740', 'Active Vehicle Population', Colors.green),
+                context, '695,740', 'Active Vehicle Population', Colors.green,),
             _buildStatCard(context, '772,570', 'Licensed Drivers', Colors.blue),
             _buildStatCard(
-                context, '80,310', 'Traffic Violations', Colors.orange),
+                context, '80,310', 'Traffic Violations', Colors.orange,),
           ],
         ),
       ],
@@ -417,15 +416,15 @@ class HomeBody extends StatelessWidget {
 }
 
 class _LicenseButton extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final VoidCallback onTap;
 
   const _LicenseButton({
     required this.icon,
     required this.label,
     required this.onTap,
   });
+  final IconData icon;
+  final String label;
+  final VoidCallback onTap;
 
   @override
   Widget build(BuildContext context) {

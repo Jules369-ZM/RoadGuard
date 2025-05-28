@@ -183,7 +183,7 @@ export const checkLicenseExpiry = onSchedule(
     // schedule: "0 0 * * *", // Every day at 12:00 AM
     // schedule: "* * * * *", // For testing: every minute
     // schedule: "*/5 * * * *", // Every 5 minutes
-    schedule: "*/10 * * * *", // Every 10 minutes
+    schedule: "*/30 * * * *", // Every 30 minutes
     timeZone: "Africa/Lusaka",
   },
   async () => {

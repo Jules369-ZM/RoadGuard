@@ -1,51 +1,58 @@
-/**
- * Import function triggers from their respective submodules:
- *
- * import {onCall} from "firebase-functions/v2/https";
- * import {onDocumentWritten} from "firebase-functions/v2/firestore";
- *
- * See a full list of supported triggers at https://firebase.google.com/docs/functions
- */
-
-import {onRequest} from "firebase-functions/v2/https";
+import { onSchedule } from "firebase-functions/v2/scheduler";
+import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
-// import * as admin from "firebase-admin";
 import admin from "firebase-admin";
 
-
-
-// Start writing functions
-// https://firebase.google.com/docs/functions/typescript
-
-// export const helloWorld = onRequest((request, response) => {
-//   logger.info("Hello logs!", {structuredData: true});
-//   response.send("Hello from Firebase!");
-// });
-// Initialize Firebase Admin SDK
 admin.initializeApp();
 
 /**
- * Sends a push notification to a single device.
- * @param token - The FCM token of the device.
+ * Saves a notification to Firestore under the "notifications" collection.
+ * @param email - The recipient's email (if available).
  * @param title - The notification title.
  * @param body - The notification body.
- * @param data - The custom data to send with the notification.
+ * @param data - Custom data sent with the notification.
  */
-async function sendNotification(
-  token: string,
+async function saveNotificationToFirestore(
+  email: string | null,
   title: string,
   body: string,
   data: { [key: string]: string }
 ) {
+  try {
+    await admin.firestore().collection("notifications").add({
+      email,
+      title,
+      body,
+      data,
+      timestamp: admin.firestore.FieldValue.serverTimestamp(),
+      createdAt: admin.firestore.FieldValue.serverTimestamp(),
+      updatedAt: admin.firestore.FieldValue.serverTimestamp(),
+    });
+    logger.info("Notification saved to Firestore.");
+  } catch (error) {
+    logger.error("Failed to save notification to Firestore:", error);
+  }
+}
+
+async function sendNotification(
+  token: string,
+  title: string,
+  body: string,
+  data: { [key: string]: string },
+  email: string | null = null
+) {
   const message = {
     notification: { title, body },
-    data: data, // Send custom data here
+    data,
     token,
   };
 
   try {
     const response = await admin.messaging().send(message);
     logger.info("Notification sent successfully:", response);
+
+    await saveNotificationToFirestore(email, title, body, data);
+
     return { success: true, response };
   } catch (error) {
     logger.error("Error sending notification:", error);
@@ -53,31 +60,17 @@ async function sendNotification(
   }
 }
 
-/**
- * Sends a push notification to multiple devices.
- * @param tokens - Array of FCM tokens.
- * @param title - The notification title.
- * @param body - The notification body.
- * @param data - The custom data to send with the notification.
- */
 async function sendNotificationToMultipleDevices(
   tokens: string[],
   title: string,
   body: string,
   data: { [key: string]: string }
 ) {
-  const message = {
-    notification: { title, body },
-    data: data, // Send custom data here
-  };
-
   try {
-    // Send notification to each token
     const responses = await Promise.all(
-      tokens.map((token) => admin.messaging().send({ ...message, token }))
-    );
-    logger.info(
-      `Successfully sent notifications to ${responses.length} devices`
+      tokens.map(
+        (token) => sendNotification(token, title, body, data, null) // null email for bulk
+      )
     );
     return { success: true, responses };
   } catch (error) {
@@ -86,18 +79,14 @@ async function sendNotificationToMultipleDevices(
   }
 }
 
-/**
- * HTTP Trigger to Send Notifications
- */
 export const sendPushNotification = onRequest(async (req, res) => {
   if (req.method !== "POST") {
     res.status(405).json({ error: "Method Not Allowed" });
     return;
   }
 
-  const { token, tokens, title, body, data } = req.body;
+  const { token, tokens, title, body, data, email } = req.body;
 
-  // Check if required fields are present
   if (!title || !body) {
     res.status(400).json({ error: "Missing required fields: title or body" });
     return;
@@ -105,9 +94,8 @@ export const sendPushNotification = onRequest(async (req, res) => {
 
   let result;
 
-  // Determine whether to send to a single token, multiple tokens, or send data message
   if (token) {
-    result = await sendNotification(token, title, body, data);
+    result = await sendNotification(token, title, body, data, email ?? null);
   } else if (tokens) {
     result = await sendNotificationToMultipleDevices(tokens, title, body, data);
   } else {
@@ -117,7 +105,6 @@ export const sendPushNotification = onRequest(async (req, res) => {
     return;
   }
 
-  // Return success or error response
   if (result.success) {
     res.status(200).json({
       success: true,
@@ -128,26 +115,21 @@ export const sendPushNotification = onRequest(async (req, res) => {
     res.status(500).json({ success: false, error: result.error });
   }
 });
-/**
- * Fetches the FCM tokens from Firestore from the 'tokens' collection.
- * @return {Promise<string[]>} - A list of FCM tokens.
- */
+
 async function getFcmTokensFromFirestore(): Promise<string[]> {
   const tokensSnapshot = await admin.firestore().collection("tokens").get();
   const tokens: string[] = [];
 
   tokensSnapshot.forEach((doc) => {
-    const token = doc.data().token; // Access the 'token' field in each document
+    const token = doc.data().token;
     if (token) {
-      tokens.push(token); // Add the token to the list if it exists
+      tokens.push(token);
     }
   });
 
   return tokens;
 }
-/**
- * HTTP Trigger to Send Notifications
- */
+
 export const sendNotificationByGetTokensFromCloudStore = onRequest(
   async (req, res) => {
     if (req.method !== "POST") {
@@ -157,16 +139,12 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
 
     const { title, body, data } = req.body;
 
-    // Check if required fields are present
     if (!title || !body) {
       res.status(400).json({ error: "Missing required fields: title or body" });
       return;
     }
 
-    let result;
-
     try {
-      // Fetch tokens from Firestore
       const tokens = await getFcmTokensFromFirestore();
 
       if (tokens.length === 0) {
@@ -174,31 +152,105 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
         return;
       }
 
-      // Send notification to all tokens
-      result = await sendNotificationToMultipleDevices(
+      const result = await sendNotificationToMultipleDevices(
         tokens,
         title,
         body,
         data
       );
+
+      if (result.success) {
+        res.status(200).json({
+          success: true,
+          message: "Notification sent",
+          response: result,
+        });
+      } else {
+        res.status(500).json({ success: false, error: result.error });
+      }
     } catch (error) {
       logger.error("Error fetching tokens from Firestore:", error);
       res.status(500).json({
         success: false,
         error: "Error fetching tokens from Firestore",
       });
-      return;
     }
+  }
+);
 
-    // Return success or error response
-    if (result.success) {
-      res.status(200).json({
-        success: true,
-        message: "Notification sent",
-        response: result,
+export const checkLicenseExpiry = onSchedule(
+  {
+    // schedule: "0 0 * * *", // Every day at 12:00 AM
+    // schedule: "* * * * *", // For testing: every minute
+    // schedule: "*/5 * * * *", // Every 5 minutes
+    schedule: "*/10 * * * *", // Every 10 minutes
+    timeZone: "Africa/Lusaka",
+  },
+  async () => {
+    const db = admin.firestore();
+    const now = admin.firestore.Timestamp.now();
+    const sevenDaysLater = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
+
+    try {
+      const snapshot = await db
+        .collection("DriverLicense")
+        .where("expiryDate", ">=", now)
+        .where("expiryDate", "<=", sevenDaysLater)
+        .get();
+
+      if (snapshot.empty) {
+        logger.info("No licenses expiring soon.");
+        return;
+      }
+
+      const promises = snapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const userEmail = data.email;
+
+        if (!userEmail) {
+          logger.warn(`Missing email for document ${doc.id}`);
+          return;
+        }
+
+        const tokenSnapshot = await db
+          .collection("tokens")
+          .where("email", "==", userEmail)
+          .limit(1)
+          .get();
+
+        if (tokenSnapshot.empty) {
+          logger.warn(`No FCM token found for email: ${userEmail}`);
+          return;
+        }
+
+        const tokenData = tokenSnapshot.docs[0].data();
+        const fcmToken = tokenData.token;
+
+        if (!fcmToken) {
+          logger.warn(`Token field missing for email: ${userEmail}`);
+          return;
+        }
+
+        const title = "License Expiry Reminder";
+        const body = `Your license is expiring on ${data.expiryDate
+          .toDate()
+          .toLocaleDateString()}. Please renew it soon.`;
+        const notificationData = { type: "license_expiry" };
+
+        await sendNotification(
+          fcmToken,
+          title,
+          body,
+          notificationData,
+          userEmail
+        );
       });
-    } else {
-      res.status(500).json({ success: false, error: result.error });
+
+      await Promise.all(promises);
+    } catch (error) {
+      logger.error("Error checking license expiries:", error);
     }
   }
 );

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:road_guard/auth/auth_bloc.dart';
 import 'package:road_guard/notifications/cubit/cubit.dart';
 import 'package:road_guard/notifications/widgets/notifications_body.dart';
 
@@ -18,8 +19,10 @@ class NotificationsPage extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final user = context.read<AuthBloc>().state.user;
     return BlocProvider(
-      create: (context) => NotificationsCubit()..fetchNotifications(),
+      create: (context) =>
+          NotificationsCubit(context.read())..fetchNotifications(user.email!),
       child: Scaffold(
         appBar: AppBar(title: const Text('Notifications')),
         body: const NotificationsView(),

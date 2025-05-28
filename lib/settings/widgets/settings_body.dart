@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 import 'package:road_guard/app/theme/theme.dart';
 import 'package:road_guard/auth/auth.dart';
+import 'package:road_guard/profile/view/profile_page.dart';
 import 'package:road_guard/settings/cubit/cubit.dart';
 import 'package:road_guard/widgets/app_version.dart';
 
@@ -53,48 +54,57 @@ class _SettingsBodyState extends State<SettingsBody> {
   }
 
   Widget _buildUserProfile(User user) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration: BoxDecoration(
-        color: Theme.of(context).colorScheme.surfaceContainerHighest,
-        borderRadius: BorderRadius.circular(16),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withValues(alpha: 0.1),
-            blurRadius: 8,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            radius: 32,
-            backgroundImage: user.avatar != null
-                ? NetworkImage(user.avatar!)
-                : const AssetImage('assets/person.png') as ImageProvider,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.name ?? 'User Name',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 18,
-                      ),
-                ),
-                const SizedBox(height: 4),
-                Text(
-                  user.email ?? 'user@example.com',
-                  style: Theme.of(context).textTheme.bodyMedium,
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, ProfilePage.route());
+      },
+      child: Container(
+        padding: const EdgeInsets.all(16),
+        decoration: BoxDecoration(
+          color: Theme.of(context).colorScheme.surfaceContainerHighest,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withValues(alpha: 0.1),
+              blurRadius: 8,
+              offset: const Offset(0, 2),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              radius: 32,
+              backgroundImage: user.avatar != null
+                  ? NetworkImage(user.avatar!)
+                  : const AssetImage('assets/person.png') as ImageProvider,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.name ?? 'User Name',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
+                        ),
+                  ),
+                  const SizedBox(height: 4),
+                  Text(
+                    user.email ?? 'user@example.com',
+                    style: Theme.of(context).textTheme.bodyMedium,
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
       ),
     );
   }

@@ -79,15 +79,31 @@ class _AddDriversLicenseBodyState extends State<AddDriversLicenseBody> {
       final uuid = const Uuid().v4();
       final now = DateTime.now();
 
+      // final data = {
+      // 'createdAt': FieldValue.serverTimestamp(),
+      // 'uuid': uuid,
+      // 'email': user.email,
+      // 'name': _nameController.text,
+      // 'licenseNumber': _licenseNumberController.text,
+      // 'expiryDate': _expiryDate?.toIso8601String(),
+      // 'issuedDate': _issuedDate?.toIso8601String(),
+      // 'status': _expiryDate!.isAfter(now) ? 'Active' : 'Expired',
+      // };
+
       final data = {
         'createdAt': FieldValue.serverTimestamp(),
         'uuid': uuid,
         'email': user.email,
         'name': _nameController.text,
         'licenseNumber': _licenseNumberController.text,
-        'expiryDate': _expiryDate?.toIso8601String(),
-        'issuedDate': _issuedDate?.toIso8601String(),
-        'status': _expiryDate!.isAfter(now) ? 'Active' : 'Expired',
+        // Send as Timestamp, NOT string
+        'expiryDate':
+            _expiryDate != null ? Timestamp.fromDate(_expiryDate!) : null,
+        'issuedDate':
+            _issuedDate != null ? Timestamp.fromDate(_issuedDate!) : null,
+        'status': _expiryDate != null && _expiryDate!.isAfter(now)
+            ? 'Active'
+            : 'Expired',
       };
 
       context

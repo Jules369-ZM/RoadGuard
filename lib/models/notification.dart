@@ -1,3 +1,4 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:equatable/equatable.dart';
 
 class Notification extends Equatable {
@@ -9,19 +10,23 @@ class Notification extends Equatable {
     required this.body,
     required this.timestamp,
     required this.isRead,
+    required this.recipientEmail,
   });
 
-  // Factory method to create a Notification instance from a
-  // map (e.g., from Firestore)
+  // Factory method to create a Notification instance from Firestore map
   factory Notification.fromMap(Map<String, dynamic> map) {
+    final rawTimestamp = map['timestamp'];
+
     return Notification(
       id: map['id'] as String? ?? '',
       title: map['title'] as String? ?? '',
       message: map['message'] as String? ?? '',
       body: map['body'] as String? ?? '',
-      timestamp: DateTime.tryParse(map['timestamp'] as String? ?? '') ??
-          DateTime.now(), // Handle invalid date format
+      timestamp: rawTimestamp is Timestamp
+          ? rawTimestamp.toDate()
+          : DateTime.tryParse(rawTimestamp?.toString() ?? '') ?? DateTime.now(),
       isRead: map['isRead'] as bool? ?? false,
+      recipientEmail: map['recipientEmail'] as String? ?? '',
     );
   }
 
@@ -31,21 +36,22 @@ class Notification extends Equatable {
   final String body;
   final DateTime timestamp;
   final bool isRead;
+  final String recipientEmail;
 
-  // Method to convert the Notification instance to a map
-  //(for saving to Firestore)
+  // Convert the Notification instance to a Firestore-compatible map
   Map<String, dynamic> toMap() {
     return {
       'id': id,
       'title': title,
       'message': message,
       'body': body,
-      'timestamp': timestamp.toIso8601String(),
+      'timestamp': Timestamp.fromDate(timestamp),
       'isRead': isRead,
+      'recipientEmail': recipientEmail,
     };
   }
 
-  // Update the isRead status or other fields of the notification
+  // Create a new instance with updated fields
   Notification copyWith({
     String? id,
     String? title,
@@ -53,6 +59,7 @@ class Notification extends Equatable {
     String? body,
     DateTime? timestamp,
     bool? isRead,
+    String? recipientEmail,
   }) {
     return Notification(
       id: id ?? this.id,
@@ -61,9 +68,11 @@ class Notification extends Equatable {
       body: body ?? this.body,
       timestamp: timestamp ?? this.timestamp,
       isRead: isRead ?? this.isRead,
+      recipientEmail: recipientEmail ?? this.recipientEmail,
     );
   }
 
   @override
-  List<Object?> get props => [id, title, message, body, timestamp, isRead];
+  List<Object?> get props =>
+      [id, title, message, body, timestamp, isRead, recipientEmail];
 }

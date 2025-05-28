@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:road_guard/auth/auth_bloc.dart';
 import 'package:road_guard/models/notification.dart' as noti;
 import 'package:road_guard/notifications/cubit/cubit.dart';
 import 'package:road_guard/utils/enums.dart';
@@ -64,7 +65,7 @@ class NotificationsBodyState extends State<NotificationsBody> {
                       subtitle: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          Text(notification.message),
+                          Text(notification.body),
                           const SizedBox(height: 8),
                           Text(
                             notification.timestamp.toLocal().toString(),
@@ -151,7 +152,10 @@ class NotificationsBodyState extends State<NotificationsBody> {
                 AppButton(
                   type: ButtonType.outlined,
                   onPressed: () {
-                    context.read<NotificationsCubit>().fetchNotifications();
+                    final user = context.read<AuthBloc>().state.user;
+                    context
+                        .read<NotificationsCubit>()
+                        .fetchNotifications(user.email!);
                   },
                   text: 'Retry',
                 ),

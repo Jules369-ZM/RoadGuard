@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/drivers_license/drivers_license.dart';
 import 'package:road_guard/home/cubit/cubit.dart';
+import 'package:road_guard/profile/view/profile_page.dart';
 import 'package:road_guard/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -64,49 +65,58 @@ class HomeBody extends StatelessWidget {
   }
 
   Widget _buildProfileSection(BuildContext context, User user) {
-    return Container(
-      padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
-      decoration: BoxDecoration(
-        color: Colors.grey.shade50,
-        borderRadius: BorderRadius.circular(16),
-        border: Border.all(color: Colors.grey.shade200),
-        boxShadow: [
-          BoxShadow(
-            color: Colors.black.withOpacity(0.05),
-            blurRadius: 10,
-            offset: const Offset(0, 2),
-          ),
-        ],
-      ),
-      child: Row(
-        children: [
-          CircleAvatar(
-            backgroundImage: NetworkImage(user.avatar ?? ''),
-            radius: 32,
-            backgroundColor: Colors.grey.shade200,
-          ),
-          const SizedBox(width: 16),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  user.name ?? 'User',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                        fontWeight: FontWeight.bold,
-                      ),
-                ),
-                const SizedBox(height: 6),
-                Text(
-                  user.email ?? '',
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: Colors.grey.shade700,
-                      ),
-                ),
-              ],
+    return GestureDetector(
+      onTap: () {
+        Navigator.push(context, ProfilePage.route());
+      },
+      child: Container(
+        padding: const EdgeInsets.symmetric(vertical: 14, horizontal: 18),
+        decoration: BoxDecoration(
+          color: Colors.grey.shade50,
+          borderRadius: BorderRadius.circular(16),
+          border: Border.all(color: Colors.grey.shade200),
+          boxShadow: [
+            BoxShadow(
+              color: Colors.black.withOpacity(0.05),
+              blurRadius: 10,
+              offset: const Offset(0, 2),
             ),
-          ),
-        ],
+          ],
+        ),
+        child: Row(
+          children: [
+            CircleAvatar(
+              backgroundImage: NetworkImage(user.avatar ?? ''),
+              radius: 32,
+              backgroundColor: Colors.grey.shade200,
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    user.name ?? 'User',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                  const SizedBox(height: 6),
+                  Text(
+                    user.email ?? '',
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: Colors.grey.shade700,
+                        ),
+                  ),
+                ],
+              ),
+            ),
+            Icon(
+              Icons.arrow_forward_ios,
+              color: Theme.of(context).colorScheme.primary,
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -335,10 +345,18 @@ class HomeBody extends StatelessWidget {
           mainAxisAlignment: MainAxisAlignment.spaceBetween,
           children: [
             _buildStatCard(
-                context, '695,740', 'Active Vehicle Population', Colors.green,),
+              context,
+              '695,740',
+              'Active Vehicle Population',
+              Colors.green,
+            ),
             _buildStatCard(context, '772,570', 'Licensed Drivers', Colors.blue),
             _buildStatCard(
-                context, '80,310', 'Traffic Violations', Colors.orange,),
+              context,
+              '80,310',
+              'Traffic Violations',
+              Colors.orange,
+            ),
           ],
         ),
       ],
@@ -416,7 +434,6 @@ class HomeBody extends StatelessWidget {
 }
 
 class _LicenseButton extends StatelessWidget {
-
   const _LicenseButton({
     required this.icon,
     required this.label,

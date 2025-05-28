@@ -1,0 +1,2 @@
+/Users/juliusbanda/projects/personal/SchoolProjects/road_guard/android/app/.cxx/Debug/4y1f1e5n/x86/CMakeFiles/edit_cache.dir
+/Users/juliusbanda/projects/personal/SchoolProjects/road_guard/android/app/.cxx/Debug/4y1f1e5n/x86/CMakeFiles/rebuild_cache.dir

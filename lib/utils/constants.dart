@@ -7,3 +7,4 @@ String usersDoc = 'users';
 String driverLicense = 'DriverLicense';
 String images = 'images';
 String tokens = 'tokens';
+String notifications = 'notifications';

@@ -1,5 +1,6 @@
 import 'dart:io';
 
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:road_guard/drivers_license/cubit/cubit.dart';
@@ -96,21 +97,39 @@ class _UpdateDriversLicenseBodyState extends State<UpdateDriversLicenseBody> {
     final license =
         ModalRoute.of(context)!.settings.arguments! as DriverLicense;
     if (_formKey.currentState!.validate()) {
-      final updatedLicense = DriverLicense(
-        uuid: license.uuid,
-        email: license.email,
-        name: nameController.text,
-        licenseNumber: licenseNumberController.text,
-        issuedDate: DateTime.parse(issuedDateController.text),
-        expiryDate: DateTime.parse(expiryDateController.text),
-        status: _selectedStatus!,
-        image: _selectedImage?.path ?? license.image,
-      );
+      // final updatedLicense = DriverLicense(
+      // uuid: license.uuid,
+      // email: license.email,
+      // name: nameController.text,
+      // licenseNumber: licenseNumberController.text,
+      // issuedDate: DateTime.parse(issuedDateController.text),
+      // expiryDate: DateTime.parse(expiryDateController.text),
+      // status: _selectedStatus!,
+      // image: _selectedImage?.path ?? license.image,
+      // );
+      final now = DateTime.now();
+      final expiryDate = DateTime.tryParse(expiryDateController.text);
+      final issuedDate = DateTime.tryParse(issuedDateController.text);
+      final data = {
+        'updatedAt': FieldValue.serverTimestamp(),
+        'uuid': license.uuid,
+        'email': license.email,
+        'name': license.name,
+        'licenseNumber': license.licenseNumber,
+        // Send as Timestamp, NOT string
+        'expiryDate':
+            expiryDate != null ? Timestamp.fromDate(expiryDate) : null,
+        'issuedDate':
+            issuedDate != null ? Timestamp.fromDate(issuedDate) : null,
+        'status': expiryDate != null && expiryDate.isAfter(now)
+            ? 'Active'
+            : 'Expired',
+      };
 
       context.read<DriversLicenseCubit>().updateLicense(
-            updatedLicense.toMap(),
+            data,
             _selectedImage,
-            updatedLicense,
+            license,
           );
     }
   }

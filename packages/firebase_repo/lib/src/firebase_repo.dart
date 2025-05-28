@@ -156,6 +156,35 @@ class FirebaseRepo {
     }
   }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+  /// Gets a user by their ID.
+  ///
+  /// If a user is found, adds a [User] object to the stream and adds
+  /// [AuthStatus.refresh] to the stream, then waits 1 second and adds
+  /// [AuthStatus.authenticated] to the stream.
+  ///
+  /// If a user is not found, adds `null` to the stream.
+  ///
+  /// The user is also stored in the local database.
+  ///
+  /// Returns the user if found, `null` otherwise.
+// /*******  dfc5f69f-0135-4c9a-83f2-840013194ff3  *******/
+  Future<User?> getUserById(String uid, String usersDoc) async {
+    final doc = await _firestore.collection(usersDoc).doc(uid).get();
+    if (doc.exists) {
+      final data = doc.data()!;
+      final user = User.fromJson(data);
+      await _db.insertOne(_tblUsers, user.toJsonDb());
+      _controller.add(AuthStatus.refresh);
+      Future.delayed(const Duration(seconds: 1), () {
+        _controller.add(AuthStatus.authenticated);
+      });
+
+      return user;
+    }
+    return null;
+  }
+
   /// Creates a new user with the provided [email] and [password].
   ///
   /// Throws a [SignUpWithEmailAndPasswordFailure] if an exception occurs.
@@ -191,6 +220,8 @@ class FirebaseRepo {
           'provider': userCred.providerData[0].providerId,
           'metaData1': metaData,
         }),
+        fullPhone: '',
+        countryCode: '',
       );
       await saveUserDataToFirestore(user: user.toJson());
     } on firebase_auth.FirebaseAuthException catch (e) {
@@ -269,6 +300,8 @@ class FirebaseRepo {
           'provider': userCred.providerData[0].providerId,
           'metaData1': '',
         }),
+        fullPhone: '',
+        countryCode: '',
       );
       await saveUserDataToFirestore(user: user.toJson());
     } on firebase_auth.FirebaseAuthException catch (e) {

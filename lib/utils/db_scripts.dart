@@ -13,9 +13,12 @@ CREATE TABLE users(
 ];
 
 final migrationScript = <String>[
-  // '''
-// ALTER TABLE users ADD COLUMN gender TEXT;
-  // ''',
+  '''
+ALTER TABLE users ADD COLUMN countryCode TEXT;
+  ''',
+    '''
+ALTER TABLE users ADD COLUMN fullPhone TEXT;
+  ''',
   // '''
     // ALTER TABLE transactions ADD COLUMN printed INTEGER DEFAULT 0;
     // ''',

@@ -15,6 +15,8 @@ class User extends Equatable {
     required this.phone,
     required this.metaData,
     required this.role,
+    required this.fullPhone,
+    required this.countryCode,
   });
 
   factory User.fromJson(Map<String, dynamic> json) => _$UserFromJson(json);
@@ -28,6 +30,8 @@ class User extends Equatable {
   final String? phone;
   final String? metaData;
   final String? role;
+  final String? fullPhone;
+  final String? countryCode;
 
   /// Empty user instance
   static const empty = User(
@@ -38,6 +42,8 @@ class User extends Equatable {
     phone: '',
     metaData: '',
     role: '',
+    fullPhone: '',
+    countryCode: '',
   );
 
   User copyWith({
@@ -48,6 +54,8 @@ class User extends Equatable {
     String? email,
     String? phone,
     String? role,
+    String? fullPhone,
+    String? countryCode,
   }) {
     return User(
       id: id ?? this.id ?? '',
@@ -57,6 +65,8 @@ class User extends Equatable {
       email: email ?? this.email ?? '',
       phone: phone ?? this.phone ?? '',
       role: role ?? this.role ?? '',
+      fullPhone: fullPhone ?? this.fullPhone ?? '',
+      countryCode: countryCode ?? this.countryCode ?? '',
     );
   }
 
@@ -67,7 +77,7 @@ class User extends Equatable {
 
   @override
   String toString() {
-    return '''$id, $avatar, $name, $metaData, $email, $phone,  $role''';
+    return '''$id, $avatar, $name, $metaData, $email, $phone,  $role, $fullPhone, $countryCode''';
   }
 
   @override
@@ -79,6 +89,8 @@ class User extends Equatable {
         email,
         phone,
         role,
+        fullPhone,
+        countryCode,
       ];
 }
 
@@ -90,6 +102,8 @@ Map<String, dynamic> _$UserToJsonDb(User instance) => <String, dynamic>{
       'email': instance.email,
       'phone': instance.phone,
       'role': instance.role,
+      'fullPhone': instance.fullPhone,
+      'countryCode': instance.countryCode,
     };
 
 User _$UserFromDbJson(Map<String, dynamic> json) => User(
@@ -100,4 +114,6 @@ User _$UserFromDbJson(Map<String, dynamic> json) => User(
       email: json['email'] as String? ?? '',
       phone: json['phone'] as String? ?? '',
       role: json['role'] as String? ?? '',
+      fullPhone: json['fullPhone'] as String? ?? '',
+      countryCode: json['countryCode'] as String? ?? '',
     );

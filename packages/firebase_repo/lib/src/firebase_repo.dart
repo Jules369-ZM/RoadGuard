@@ -185,6 +185,21 @@ class FirebaseRepo {
     return null;
   }
 
+/*************  ✨ Windsurf Command ⭐  *************/
+  /// Formats a phone number by prepending the country code '+26' if it starts with '0'.
+  ///
+  /// If the phone number does not start with '0', it is returned unchanged.
+  ///
+  /// Returns the formatted phone number as a [String].
+
+// /*******  9769d2f0-4ba0-462e-9375-9c72c1a22163  *******/
+  String formatPhoneNumber(String phone) {
+    if (phone.startsWith('0')) {
+      return '+26$phone';
+    }
+    return phone;
+  }
+
   /// Creates a new user with the provided [email] and [password].
   ///
   /// Throws a [SignUpWithEmailAndPasswordFailure] if an exception occurs.
@@ -201,13 +216,14 @@ class FirebaseRepo {
         email: email,
         password: password,
       );
+      final ph1 = formatPhoneNumber(phone);
       final userCred = cred.user!;
       final user = User(
         id: userCred.uid,
         email: userCred.email ?? email,
         name: userCred.displayName ?? name,
         avatar: userCred.photoURL,
-        phone: userCred.phoneNumber ?? phone,
+        phone: phone,
         role: role,
         metaData: jsonEncode({
           'emailVerified': userCred.emailVerified,
@@ -220,8 +236,8 @@ class FirebaseRepo {
           'provider': userCred.providerData[0].providerId,
           'metaData1': metaData,
         }),
-        fullPhone: '',
-        countryCode: '',
+        fullPhone: ph1,
+        countryCode: '+260',
       );
       await saveUserDataToFirestore(user: user.toJson());
     } on firebase_auth.FirebaseAuthException catch (e) {

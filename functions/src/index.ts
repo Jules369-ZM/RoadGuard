@@ -180,10 +180,8 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
 
 export const checkLicenseExpiry = onSchedule(
   {
-    // schedule: "0 0 * * *", // Every day at 12:00 AM
-    // schedule: "* * * * *", // For testing: every minute
-    // schedule: "*/5 * * * *", // Every 5 minutes
-    schedule: "*/30 * * * *", // Every 30 minutes
+    // schedule: "*/30 * * * *", // Every 30 minutes
+    schedule: "0 * * * *", // Every hour
     timeZone: "Africa/Lusaka",
   },
   async () => {
@@ -194,63 +192,129 @@ export const checkLicenseExpiry = onSchedule(
     );
 
     try {
-      const snapshot = await db
+      // 1. Licenses expiring soon
+      const expiringSoonSnapshot = await db
         .collection("DriverLicense")
         .where("expiryDate", ">=", now)
         .where("expiryDate", "<=", sevenDaysLater)
         .get();
 
-      if (snapshot.empty) {
-        logger.info("No licenses expiring soon.");
-        return;
-      }
+      // 2. Licenses already expired
+      const expiredSnapshot = await db
+        .collection("DriverLicense")
+        .where("expiryDate", "<", now)
+        .get();
 
-      const promises = snapshot.docs.map(async (doc) => {
-        const data = doc.data();
-        const userEmail = data.email;
-
-        if (!userEmail) {
-          logger.warn(`Missing email for document ${doc.id}`);
+      const handleSnapshot = async (
+        snapshot: FirebaseFirestore.QuerySnapshot,
+        isExpired: boolean
+      ) => {
+        if (snapshot.empty) {
+          logger.info(
+            isExpired ? "No expired licenses." : "No licenses expiring soon."
+          );
           return;
         }
 
-        const tokenSnapshot = await db
-          .collection("tokens")
-          .where("email", "==", userEmail)
-          .limit(1)
-          .get();
+        const promises = snapshot.docs.map(async (doc) => {
+          const data = doc.data();
+          const userEmail = data.email;
 
-        if (tokenSnapshot.empty) {
-          logger.warn(`No FCM token found for email: ${userEmail}`);
-          return;
-        }
+          if (!userEmail) {
+            logger.warn(`Missing email for document ${doc.id}`);
+            return;
+          }
 
-        const tokenData = tokenSnapshot.docs[0].data();
-        const fcmToken = tokenData.token;
+          const tokenSnapshot = await db
+            .collection("tokens")
+            .where("email", "==", userEmail)
+            .limit(1)
+            .get();
 
-        if (!fcmToken) {
-          logger.warn(`Token field missing for email: ${userEmail}`);
-          return;
-        }
+          if (tokenSnapshot.empty) {
+            logger.warn(`No FCM token found for email: ${userEmail}`);
+            return;
+          }
 
-        const title = "License Expiry Reminder";
-        const body = `Your license is expiring on ${data.expiryDate
-          .toDate()
-          .toLocaleDateString()}. Please renew it soon.`;
-        const notificationData = { type: "license_expiry" };
+          const tokenData = tokenSnapshot.docs[0].data();
+          const fcmToken = tokenData.token;
 
-        await sendNotification(
-          fcmToken,
-          title,
-          body,
-          notificationData,
-          userEmail
-        );
-      });
+          if (!fcmToken) {
+            logger.warn(`Token field missing for email: ${userEmail}`);
+            return;
+          }
 
-      await Promise.all(promises);
+          const fullPhone = tokenData.fullPhone;
+
+          if (!fullPhone) {
+            logger.warn(`Full phone field missing for email: ${userEmail}`);
+            return;
+          }
+
+          const expiryDateStr = data.expiryDate
+            .toDate()
+            .toLocaleDateString("en-ZM");
+
+          const title = isExpired
+            ? "License Expired"
+            : "License Expiry Reminder";
+          const body = isExpired
+            ? `Your license expired on ${expiryDateStr}. Please renew it immediately.`
+            : `Your license is expiring on ${expiryDateStr}. Please renew it soon.`;
+          const notificationData = {
+            type: isExpired ? "license_expired" : "license_expiry",
+          };
+
+          await sendNotification(
+            fcmToken,
+            title,
+            body,
+            notificationData,
+            userEmail
+          );
+          // Also send SMS
+          if (fullPhone) {
+            await sendSms(fullPhone, body);
+          }
+
+        });
+
+        await Promise.all(promises);
+      };
+
+      await handleSnapshot(expiringSoonSnapshot, false);
+      await handleSnapshot(expiredSnapshot, true);
     } catch (error) {
       logger.error("Error checking license expiries:", error);
     }
   }
 );
+
+const sendSms = async (recipient: string, message: string) => {
+  const url = "https://probasesms.com/api/json/multi/res/bulk/sms";
+
+  const payload = {
+    username: "Prince Mambwe",
+    password: "avcyYJwUqnyJfdfjeJcf",
+    source: "Monitoring",
+    senderid: "U5Health",
+    recipient: [recipient],
+    message,
+    msg_ref: "",
+  };
+
+  try {
+    const response = await fetch(url, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify(payload),
+    });
+
+    const result = await response.json();
+    logger.info("SMS sent successfully:", result);
+  } catch (error) {
+    logger.error("Failed to send SMS:", error);
+  }
+};

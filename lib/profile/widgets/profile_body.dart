@@ -65,8 +65,8 @@ class _ProfileBodyState extends State<ProfileBody> {
     final data = {
       'name': _nameController.text.trim(),
       'phone': _phoneController.text.trim(),
-      'countryCode': countryCode.trim(),
-      'fullPhone': fullPhone.trim(),
+      'countryCode': '+${countryCode.trim()}',
+      'fullPhone': '+${fullPhone.trim()}',
       'updatedAt': FieldValue.serverTimestamp(),
     };
     log('User data: $data');

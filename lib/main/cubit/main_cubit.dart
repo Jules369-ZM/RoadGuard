@@ -24,6 +24,8 @@ class MainCubit extends Cubit<MainState> {
           'email': user.email,
           'name': user.name,
           'phone': user.phone,
+          'fullPhone': user.fullPhone,
+          'countryCode': user.countryCode,
         },
         tokens,
         user.id!,

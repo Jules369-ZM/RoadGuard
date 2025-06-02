@@ -30,8 +30,8 @@ class SignUpBody extends StatelessWidget {
             padding: EdgeInsets.symmetric(
               horizontal: getProportionateScreenHeight(32),
             ),
-            child: Column(
-              mainAxisSize: MainAxisSize.min,
+            child: ListView(
+              // mainAxisSize: MainAxisSize.min,
               children: [
                 Image.asset(
                   'assets/icon.png',

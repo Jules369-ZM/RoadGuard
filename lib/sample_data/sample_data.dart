@@ -11,8 +11,10 @@ List<Notification> sampleNotifications = [
     body:
         'Your vehicle registration for car XYZ123 is due for renewal in 5 days. Visit the RTSA website to complete the renewal.',
     timestamp: DateTime.now().subtract(const Duration(days: 2)),
+    createdAt: DateTime.now().subtract(const Duration(days: 2)),
     isRead: false,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '2',
@@ -21,8 +23,10 @@ List<Notification> sampleNotifications = [
     body:
         'Due to adverse weather conditions, road safety is compromised. Ensure to drive cautiously and avoid non-essential travel.',
     timestamp: DateTime.now().subtract(const Duration(hours: 12)),
+    createdAt: DateTime.now().subtract(const Duration(hours: 12)),
     isRead: true,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '3',
@@ -31,8 +35,10 @@ List<Notification> sampleNotifications = [
     body:
         'A fine has been imposed for speeding. You can pay the fine online through the RTSA portal.',
     timestamp: DateTime.now().subtract(const Duration(days: 5)),
+    createdAt: DateTime.now().subtract(const Duration(days: 5)),
     isRead: false,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '4',
@@ -41,8 +47,10 @@ List<Notification> sampleNotifications = [
     body:
         'Please remember to schedule a vehicle inspection within the next 7 days to ensure roadworthiness.',
     timestamp: DateTime.now().subtract(const Duration(days: 10)),
+    createdAt: DateTime.now().subtract(const Duration(days: 10)),
     isRead: false,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '5',
@@ -51,8 +59,10 @@ List<Notification> sampleNotifications = [
     body:
         'RTSA has announced new speed limits for highways. Make sure to familiarize yourself with the new regulations.',
     timestamp: DateTime.now().subtract(const Duration(days: 30)),
+    createdAt: DateTime.now().subtract(const Duration(days: 30)),
     isRead: true,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '6',
@@ -61,8 +71,10 @@ List<Notification> sampleNotifications = [
     body:
         'Don’t forget to renew your driver’s license. You can renew it online through the RTSA website.',
     timestamp: DateTime.now().subtract(const Duration(days: 20)),
+    createdAt: DateTime.now().subtract(const Duration(days: 20)),
     isRead: true,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '7',
@@ -71,8 +83,10 @@ List<Notification> sampleNotifications = [
     body:
         'Please update your RTSA app to the latest version to access new features and improvements.',
     timestamp: DateTime.now().subtract(const Duration(hours: 4)),
+    createdAt: DateTime.now().subtract(const Duration(hours: 4)),
     isRead: false,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '8',
@@ -81,8 +95,10 @@ List<Notification> sampleNotifications = [
     body:
         'Due to roadworks, heavy traffic is anticipated on the M1. Consider alternative routes to avoid delays.',
     timestamp: DateTime.now().subtract(const Duration(hours: 6)),
+    createdAt: DateTime.now().subtract(const Duration(hours: 6)),
     isRead: false,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '9',
@@ -91,8 +107,10 @@ List<Notification> sampleNotifications = [
     body:
         'Due to upcoming roadworks, the bus schedule has been updated. Check the new schedule on the RTSA app.',
     timestamp: DateTime.now().subtract(const Duration(days: 3)),
+    createdAt: DateTime.now().subtract(const Duration(days: 3)),
     isRead: true,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
   Notification(
     id: '10',
@@ -101,7 +119,9 @@ List<Notification> sampleNotifications = [
     body:
         'The Kafue Road will be closed for maintenance from 10th to 15th. Please plan your routes accordingly.',
     timestamp: DateTime.now().subtract(const Duration(days: 7)),
+    createdAt: DateTime.now().subtract(const Duration(days: 7)),
     isRead: false,
     recipientEmail: '6Hb0v@example.com',
+    type: 'alert',
   ),
 ];

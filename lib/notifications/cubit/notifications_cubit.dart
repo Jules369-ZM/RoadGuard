@@ -21,18 +21,21 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       // from a remote server or local database.
       emit(state.copyWith(status: CurrentStatus.loading));
 
-      // await Future.delayed(
-      // const Duration(seconds: 1),
-      // () {},
-      // ); // Simulated delay
       final res = await firebaseRepo.readDocumentsWhere(
         collectionPath: notifications,
         field: 'email',
         value: email,
       );
-      log('res: $res');
+      final res1 = await firebaseRepo.readDocumentsWhere(
+        collectionPath: notifications,
+        field: 'type',
+        value: 'alert',
+      );
+      log('res: $res1');
       if (isClosed) return;
       final notif = res.map(Notification.fromMap).toList();
+      final notif1 = res1.map(Notification.fromMap).toList();
+      notif.addAll(notif1);
       // After fetching notifications, emit the state with the loaded data.
       if (isClosed) return null;
       emit(

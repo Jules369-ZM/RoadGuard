@@ -11,6 +11,8 @@ class Notification extends Equatable {
     required this.timestamp,
     required this.isRead,
     required this.recipientEmail,
+    required this.type,
+    required this.createdAt,
   });
 
   // Factory method to create a Notification instance from Firestore map
@@ -25,8 +27,12 @@ class Notification extends Equatable {
       timestamp: rawTimestamp is Timestamp
           ? rawTimestamp.toDate()
           : DateTime.tryParse(rawTimestamp?.toString() ?? '') ?? DateTime.now(),
+      createdAt: rawTimestamp is Timestamp
+          ? rawTimestamp.toDate()
+          : DateTime.tryParse(rawTimestamp?.toString() ?? '') ?? DateTime.now(),
       isRead: map['isRead'] as bool? ?? false,
       recipientEmail: map['recipientEmail'] as String? ?? '',
+      type: map['type'] as String? ?? '',
     );
   }
 
@@ -35,8 +41,10 @@ class Notification extends Equatable {
   final String message;
   final String body;
   final DateTime timestamp;
+  final DateTime createdAt;
   final bool isRead;
   final String recipientEmail;
+  final String type;
 
   // Convert the Notification instance to a Firestore-compatible map
   Map<String, dynamic> toMap() {
@@ -46,8 +54,10 @@ class Notification extends Equatable {
       'message': message,
       'body': body,
       'timestamp': Timestamp.fromDate(timestamp),
+      'createdAt': Timestamp.fromDate(createdAt),
       'isRead': isRead,
       'recipientEmail': recipientEmail,
+      'type': type,
     };
   }
 
@@ -58,8 +68,10 @@ class Notification extends Equatable {
     String? message,
     String? body,
     DateTime? timestamp,
+    DateTime? createdAt,
     bool? isRead,
     String? recipientEmail,
+    String? type,
   }) {
     return Notification(
       id: id ?? this.id,
@@ -69,10 +81,20 @@ class Notification extends Equatable {
       timestamp: timestamp ?? this.timestamp,
       isRead: isRead ?? this.isRead,
       recipientEmail: recipientEmail ?? this.recipientEmail,
+      type: type ?? this.type,
+      createdAt: createdAt ?? this.createdAt,
     );
   }
 
   @override
-  List<Object?> get props =>
-      [id, title, message, body, timestamp, isRead, recipientEmail];
+  List<Object?> get props => [
+        id,
+        title,
+        message,
+        body,
+        timestamp,
+        isRead,
+        recipientEmail,
+        type,
+      ];
 }

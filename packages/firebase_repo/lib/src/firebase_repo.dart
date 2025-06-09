@@ -468,7 +468,28 @@ class FirebaseRepo {
     }
     return documents;
   }
+/*************  ✨ Windsurf Command ⭐  *************/
+  /// Uploads a list of sample notifications to Firestore.
+  ///
+  /// Takes a list of [notifications] and uploads each one to the 'notifications'
+  /// collection in Firestore. Each notification is identified by its `id` and
+  /// stored using its mapped data representation.
+  ///
+  /// This function is asynchronous and completes when all notifications have
+  /// been successfully uploaded.
 
+// /*******  2753c7ab-ec8f-4e90-8ce5-c0733506876a  *******/
+  Future<void> uploadSampleNotifications(
+    List<JsonMap> notifications,
+  ) async {
+    final notificationsRef = _firestore.collection('notifications');
+
+    for (final notification in notifications) {
+      await notificationsRef
+          .doc(notification['id'] as String)
+          .set(notification);
+    }
+  }
 /*************  ✨ Codeium Command ⭐  *************/
   /// Retrieves documents from Firestore for a specific user.
   ///

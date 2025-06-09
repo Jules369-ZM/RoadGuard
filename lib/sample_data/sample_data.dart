@@ -112,16 +112,4 @@ List<Notification> sampleNotifications = [
     recipientEmail: '6Hb0v@example.com',
     type: 'alert',
   ),
-  Notification(
-    id: '10',
-    title: 'Road Closure Notice',
-    message: 'A major road will be closed for maintenance.',
-    body:
-        'The Kafue Road will be closed for maintenance from 10th to 15th. Please plan your routes accordingly.',
-    timestamp: DateTime.now().subtract(const Duration(days: 7)),
-    createdAt: DateTime.now().subtract(const Duration(days: 7)),
-    isRead: false,
-    recipientEmail: '6Hb0v@example.com',
-    type: 'alert',
-  ),
 ];

@@ -20,7 +20,9 @@ class NotificationsCubit extends Cubit<NotificationsState> {
       // Simulating a delay as if fetching notifications
       // from a remote server or local database.
       emit(state.copyWith(status: CurrentStatus.loading));
-
+      // final jsonNotifications =
+          // sampleNotifications.map((e) => e.toMap()).toList();
+      // await firebaseRepo.uploadSampleNotifications(jsonNotifications);
       final res = await firebaseRepo.readDocumentsWhere(
         collectionPath: notifications,
         field: 'email',

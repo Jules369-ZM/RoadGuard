@@ -50,20 +50,20 @@ class DefaultFirebaseOptions {
   }
 
   static const FirebaseOptions android = FirebaseOptions(
-    apiKey: 'AIzaSyATEai6UXDcKCnxQGbYZSDG1kzBS8EOWgk',
-    appId: '1:343967323817:android:c62644973325738bc23bb8',
-    messagingSenderId: '343967323817',
-    projectId: 'hustle-956f0',
-    storageBucket: 'hustle-956f0.firebasestorage.app',
+    apiKey: 'AIzaSyCLScl11kn-F_TyEPu4b4-wl4eCJXR1nbE',
+    appId: '1:260201140681:android:16f3b1eedd35bb6a881818',
+    messagingSenderId: '260201140681',
+    projectId: 'road-user-alert-system',
+    storageBucket: 'road-user-alert-system.firebasestorage.app',
   );
 
   static const FirebaseOptions ios = FirebaseOptions(
-    apiKey: 'AIzaSyCw5JvMqscSKR7qjlD8wjYyF2FxrRgkwVs',
-    appId: '1:343967323817:ios:ebf91ff69c293dc5c23bb8',
-    messagingSenderId: '343967323817',
-    projectId: 'hustle-956f0',
-    storageBucket: 'hustle-956f0.firebasestorage.app',
-    iosClientId: '343967323817-3no38uio2rjliusls2ru578q5htbjamp.apps.googleusercontent.com',
+    apiKey: 'AIzaSyChIZws9Aj7SkESNP88mLF2aI9olqNaXJo',
+    appId: '1:260201140681:ios:c2c82166ea30156d881818',
+    messagingSenderId: '260201140681',
+    projectId: 'road-user-alert-system',
+    storageBucket: 'road-user-alert-system.firebasestorage.app',
+    iosClientId: '260201140681-roep8jga6rktpb21o4oi015i3hju1fdp.apps.googleusercontent.com',
     iosBundleId: 'zm.co.roadguard.app',
   );
 

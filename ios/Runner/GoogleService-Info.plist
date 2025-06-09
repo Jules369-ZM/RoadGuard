@@ -3,21 +3,21 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>343967323817-3no38uio2rjliusls2ru578q5htbjamp.apps.googleusercontent.com</string>
+	<string>260201140681-roep8jga6rktpb21o4oi015i3hju1fdp.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.343967323817-3no38uio2rjliusls2ru578q5htbjamp</string>
+	<string>com.googleusercontent.apps.260201140681-roep8jga6rktpb21o4oi015i3hju1fdp</string>
 	<key>API_KEY</key>
-	<string>AIzaSyCw5JvMqscSKR7qjlD8wjYyF2FxrRgkwVs</string>
+	<string>AIzaSyChIZws9Aj7SkESNP88mLF2aI9olqNaXJo</string>
 	<key>GCM_SENDER_ID</key>
-	<string>343967323817</string>
+	<string>260201140681</string>
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
 	<string>zm.co.roadguard.app</string>
 	<key>PROJECT_ID</key>
-	<string>hustle-956f0</string>
+	<string>road-user-alert-system</string>
 	<key>STORAGE_BUCKET</key>
-	<string>hustle-956f0.firebasestorage.app</string>
+	<string>road-user-alert-system.firebasestorage.app</string>
 	<key>IS_ADS_ENABLED</key>
 	<false></false>
 	<key>IS_ANALYTICS_ENABLED</key>
@@ -29,6 +29,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:343967323817:ios:ebf91ff69c293dc5c23bb8</string>
+	<string>1:260201140681:ios:c2c82166ea30156d881818</string>
 </dict>
 </plist>

@@ -1,40 +1,40 @@
 {
   "project_info": {
-    "project_number": "343967323817",
-    "project_id": "hustle-956f0",
-    "storage_bucket": "hustle-956f0.firebasestorage.app"
+    "project_number": "260201140681",
+    "project_id": "road-user-alert-system",
+    "storage_bucket": "road-user-alert-system.firebasestorage.app"
   },
   "client": [
     {
       "client_info": {
-        "mobilesdk_app_id": "1:343967323817:android:c62644973325738bc23bb8",
+        "mobilesdk_app_id": "1:260201140681:android:16f3b1eedd35bb6a881818",
         "android_client_info": {
           "package_name": "zm.co.roadguard.app"
         }
       },
       "oauth_client": [
         {
-          "client_id": "343967323817-n8urjvk0n9blbqb9a8d5j7r9mkdv4epn.apps.googleusercontent.com",
+          "client_id": "260201140681-tt1n6644pn5vp25il7k6ln4fphtc66l7.apps.googleusercontent.com",
           "client_type": 3
         }
       ],
       "api_key": [
         {
-          "current_key": "AIzaSyATEai6UXDcKCnxQGbYZSDG1kzBS8EOWgk"
+          "current_key": "AIzaSyCLScl11kn-F_TyEPu4b4-wl4eCJXR1nbE"
         }
       ],
       "services": {
         "appinvite_service": {
           "other_platform_oauth_client": [
             {
-              "client_id": "343967323817-n8urjvk0n9blbqb9a8d5j7r9mkdv4epn.apps.googleusercontent.com",
+              "client_id": "260201140681-tt1n6644pn5vp25il7k6ln4fphtc66l7.apps.googleusercontent.com",
               "client_type": 3
             },
             {
-              "client_id": "343967323817-uu45gsdn6hf2rvg62jmcv924k8rphmd5.apps.googleusercontent.com",
+              "client_id": "260201140681-roep8jga6rktpb21o4oi015i3hju1fdp.apps.googleusercontent.com",
               "client_type": 2,
               "ios_info": {
-                "bundle_id": "zm.co.roadguard"
+                "bundle_id": "zm.co.roadguard.app"
               }
             }
           ]

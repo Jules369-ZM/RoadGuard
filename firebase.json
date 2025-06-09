@@ -3,25 +3,25 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "hustle-956f0",
-          "appId": "1:343967323817:android:c62644973325738bc23bb8",
+          "projectId": "road-user-alert-system",
+          "appId": "1:260201140681:android:16f3b1eedd35bb6a881818",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "ios": {
         "default": {
-          "projectId": "hustle-956f0",
-          "appId": "1:343967323817:ios:ebf91ff69c293dc5c23bb8",
+          "projectId": "road-user-alert-system",
+          "appId": "1:260201140681:ios:c2c82166ea30156d881818",
           "uploadDebugSymbols": false,
           "fileOutput": "ios/Runner/GoogleService-Info.plist"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "hustle-956f0",
+          "projectId": "road-user-alert-system",
           "configurations": {
-            "android": "1:343967323817:android:c62644973325738bc23bb8",
-            "ios": "1:343967323817:ios:ebf91ff69c293dc5c23bb8"
+            "android": "1:260201140681:android:16f3b1eedd35bb6a881818",
+            "ios": "1:260201140681:ios:c2c82166ea30156d881818"
           }
         }
       }

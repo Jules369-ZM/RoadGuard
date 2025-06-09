@@ -181,7 +181,8 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
 export const checkLicenseExpiry = onSchedule(
   {
     // schedule: "*/30 * * * *", // Every 30 minutes
-    schedule: "0 * * * *", // Every hour
+    // schedule: "0 * * * *", // Every hour
+    schedule: "0 8,18 * * *", // Runs at 08:00 and 18:00 daily
     timeZone: "Africa/Lusaka",
   },
   async () => {
@@ -276,7 +277,6 @@ export const checkLicenseExpiry = onSchedule(
           if (fullPhone) {
             await sendSms(fullPhone, body);
           }
-
         });
 
         await Promise.all(promises);

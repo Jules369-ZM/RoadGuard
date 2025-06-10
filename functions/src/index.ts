@@ -2,8 +2,12 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import admin from "firebase-admin";
+import * as functions from "firebase-functions";
+
 
 admin.initializeApp();
+
+const db = admin.firestore();
 
 /**
  * Saves a notification to Firestore under the "notifications" collection.
@@ -326,3 +330,114 @@ const sendSms = async (recipient: string, message: string) => {
     logger.error("Failed to send SMS:", error);
   }
 };
+
+// Core logic reused from your scheduled function:
+async function notifyLicenses() {
+  const now = admin.firestore.Timestamp.now();
+  const sevenDaysLater = admin.firestore.Timestamp.fromDate(
+    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+  );
+
+  // Helper function to handle snapshots
+  const handleSnapshot = async (
+    snapshot: FirebaseFirestore.QuerySnapshot,
+    isExpired: boolean
+  ) => {
+    if (snapshot.empty) {
+      console.log(
+        isExpired ? "No expired licenses." : "No licenses expiring soon."
+      );
+      return;
+    }
+
+    const promises = snapshot.docs.map(async (doc) => {
+      const data = doc.data();
+      const userEmail = data.email;
+
+      if (!userEmail) {
+        console.warn(`Missing email for document ${doc.id}`);
+        return;
+      }
+
+      const tokenSnapshot = await db
+        .collection("tokens")
+        .where("email", "==", userEmail)
+        .limit(1)
+        .get();
+
+      if (tokenSnapshot.empty) {
+        console.warn(`No FCM token found for email: ${userEmail}`);
+        return;
+      }
+
+      const tokenData = tokenSnapshot.docs[0].data();
+      const fcmToken = tokenData.token;
+      const fullPhone = tokenData.fullPhone;
+
+      if (!fcmToken) {
+        console.warn(`Token field missing for email: ${userEmail}`);
+        return;
+      }
+
+      if (!fullPhone) {
+        console.warn(`Full phone field missing for email: ${userEmail}`);
+        return;
+      }
+
+      const expiryDateStr = data.expiryDate
+        .toDate()
+        .toLocaleDateString("en-ZM");
+
+      const title = isExpired
+        ? "License Expired"
+        : "License Expiry Reminder";
+      const body = isExpired
+        ? `Your license expired on ${expiryDateStr}. Please renew it immediately.`
+        : `Your license is expiring on ${expiryDateStr}. Please renew it soon.`;
+      const notificationData = {
+        type: isExpired ? "license_expired" : "license_expiry",
+      };
+
+      await sendNotification(
+        fcmToken,
+        title,
+        body,
+        notificationData,
+        userEmail
+      );
+
+      await sendSms(fullPhone, body);
+    });
+
+    await Promise.all(promises);
+  };
+
+  // Query licenses expiring soon
+  const expiringSoonSnapshot = await db
+    .collection("DriverLicense")
+    .where("expiryDate", ">=", now)
+    .where("expiryDate", "<=", sevenDaysLater)
+    .get();
+
+  // Query expired licenses
+  const expiredSnapshot = await db
+    .collection("DriverLicense")
+    .where("expiryDate", "<", now)
+    .get();
+
+  await handleSnapshot(expiringSoonSnapshot, false);
+  await handleSnapshot(expiredSnapshot, true);
+}
+
+// HTTP triggered function for manual notification
+export const notifyLicenseExpiryHttp = functions.https.onRequest(
+  async (req, res) => {
+    try {
+      await notifyLicenses();
+      res.status(200).send({ message: "Notifications sent successfully." });
+    } catch (error) {
+      console.error("Error sending notifications:", error);
+      res.status(500).send({ error: "Internal Server Error" });
+    }
+  }
+);

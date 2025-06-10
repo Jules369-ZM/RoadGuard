@@ -180,8 +180,8 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
 
 export const checkLicenseExpiry = onSchedule(
   {
-    schedule: "*/30 * * * *", // Every 30 minutes
-    // schedule: "0 * * * *", // Every hour
+    // schedule: "*/30 * * * *", // Every 30 minutes
+    schedule: "0 * * * *", // Every hour
     // schedule: "0 8,18 * * *", // Runs at 08:00 and 18:00 daily
     timeZone: "Africa/Lusaka",
   },
@@ -292,12 +292,20 @@ export const checkLicenseExpiry = onSchedule(
 
 const sendSms = async (recipient: string, message: string) => {
   const url = "https://probasesms.com/api/json/multi/res/bulk/sms";
-
+  // {
+    // "username" : "Nexapp Technologies",
+    // "password" : "hax5mppuuYvphcfdrwnf",
+    // "source" : "Monitoring",
+    // "senderid" : "MotorAlert",
+    // "recipient" : ["0978263195"],
+    // "message" : "Testing",
+    // "msg_ref" : ""
+// }
   const payload = {
-    username: "Prince Mambwe",
-    password: "avcyYJwUqnyJfdfjeJcf",
+    username: "Nexapp Technologies",
+    password: "hax5mppuuYvphcfdrwnf",
     source: "Monitoring",
-    senderid: "U5Health",
+    senderid: "MotorAlert",
     recipient: [recipient],
     message,
     msg_ref: "",

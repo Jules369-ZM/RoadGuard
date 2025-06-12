@@ -89,7 +89,7 @@ android {
         staging {
             dimension "default"
             applicationIdSuffix ""
-            manifestPlaceholders = [appName: "[STG] Motorist User Alert"]
+            manifestPlaceholders = [appName: "Motorist User Alert"]
         }
         development {
             dimension "default"

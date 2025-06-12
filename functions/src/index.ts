@@ -2,19 +2,13 @@ import { onSchedule } from "firebase-functions/v2/scheduler";
 import { onRequest } from "firebase-functions/v2/https";
 import * as logger from "firebase-functions/logger";
 import admin from "firebase-admin";
-import * as functions from "firebase-functions";
-
+// import * as functions from "firebase-functions";
 
 admin.initializeApp();
-
 const db = admin.firestore();
 
 /**
  * Saves a notification to Firestore under the "notifications" collection.
- * @param email - The recipient's email (if available).
- * @param title - The notification title.
- * @param body - The notification body.
- * @param data - Custom data sent with the notification.
  */
 async function saveNotificationToFirestore(
   email: string | null,
@@ -72,9 +66,7 @@ async function sendNotificationToMultipleDevices(
 ) {
   try {
     const responses = await Promise.all(
-      tokens.map(
-        (token) => sendNotification(token, title, body, data, null) // null email for bulk
-      )
+      tokens.map((token) => sendNotification(token, title, body, data, null))
     );
     return { success: true, responses };
   } catch (error) {
@@ -182,234 +174,8 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
   }
 );
 
-
-export const checkLicenseExpiry = onSchedule(
-  {
-    schedule: "0 * * * *", // Every hour
-    timeZone: "Africa/Lusaka",
-  },
-  async () => {
-    const db = admin.firestore();
-    const now = admin.firestore.Timestamp.now();
-    const sevenDaysLater = admin.firestore.Timestamp.fromDate(
-      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-    );
-
-    try {
-      const expiringSoonSnapshot = await db
-        .collection("DriverLicense")
-        .where("expiryDate", ">=", now)
-        .where("expiryDate", "<=", sevenDaysLater)
-        .get();
-
-      const expiredSnapshot = await db
-        .collection("DriverLicense")
-        .where("expiryDate", "<", now)
-        .get();
-
-      const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
-
-      const handleSnapshot = async (
-        snapshot: FirebaseFirestore.QuerySnapshot,
-        isExpired: boolean
-      ) => {
-        if (snapshot.empty) {
-          logger.info(
-            isExpired ? "No expired licenses." : "No licenses expiring soon."
-          );
-          return;
-        }
-
-        const promises = snapshot.docs.map(async (doc) => {
-          const data = doc.data();
-          const userEmail = data.email;
-
-          if (!userEmail) {
-            logger.warn(`Missing email for document ${doc.id}`);
-            return;
-          }
-
-          const tokenSnapshot = await db
-            .collection("tokens")
-            .where("email", "==", userEmail)
-            .limit(1)
-            .get();
-
-          if (tokenSnapshot.empty) {
-            logger.warn(`No FCM token found for email: ${userEmail}`);
-            return;
-          }
-
-          const tokenData = tokenSnapshot.docs[0].data();
-          const fcmToken = tokenData.token;
-          const fullPhone = tokenData.fullPhone;
-
-          if (!fcmToken || !fullPhone) {
-            logger.warn(`Token or phone missing for email: ${userEmail}`);
-            return;
-          }
-
-          const expiryDateStr = data.expiryDate
-            .toDate()
-            .toLocaleDateString("en-ZM");
-
-          const title = isExpired
-            ? "License Expired"
-            : "License Expiry Reminder";
-          const body = isExpired
-            ? `Your license expired on ${expiryDateStr}. Please renew it immediately.`
-            : `Your license is expiring on ${expiryDateStr}. Please renew it soon.`;
-          const notificationData = {
-            type: isExpired ? "license_expired" : "license_expiry",
-          };
-
-          // Send push notification
-          await sendNotification(
-            fcmToken,
-            title,
-            body,
-            notificationData,
-            userEmail
-          );
-
-          // Check and conditionally send SMS
-          const lastSmsSent = data.lastSmsSent?.toDate();
-          const nowDate = new Date();
-
-          if (
-            !lastSmsSent ||
-            nowDate.getTime() - lastSmsSent.getTime() >= SIX_HOURS_MS
-          ) {
-            await sendSms(fullPhone, body);
-
-            // Update lastSmsSent timestamp
-            await db
-              .collection("DriverLicense")
-              .doc(doc.id)
-              .update({
-                lastSmsSent: admin.firestore.Timestamp.fromDate(nowDate),
-              });
-          } else {
-            logger.info(
-              `Skipping SMS for ${userEmail} (last sent less than 6 hours ago)`
-            );
-          }
-        });
-
-        await Promise.all(promises);
-      };
-
-      await handleSnapshot(expiringSoonSnapshot, false);
-      await handleSnapshot(expiredSnapshot, true);
-    } catch (error) {
-      logger.error("Error checking license expiries:", error);
-    }
-  }
-);
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 const sendSms = async (recipient: string, message: string) => {
   const url = "https://probasesms.com/api/json/multi/res/bulk/sms";
-  // {
-    // "username" : "Nexapp Technologies",
-    // "password" : "hax5mppuuYvphcfdrwnf",
-    // "source" : "Monitoring",
-    // "senderid" : "MotorAlert",
-    // "recipient" : ["0978263195"],
-    // "message" : "Testing",
-    // "msg_ref" : ""
-// }
   const payload = {
     username: "Nexapp Technologies",
     password: "hax5mppuuYvphcfdrwnf",
@@ -436,113 +202,247 @@ const sendSms = async (recipient: string, message: string) => {
   }
 };
 
-// Core logic reused from your scheduled function:
-async function notifyLicenses() {
-  const now = admin.firestore.Timestamp.now();
-  const sevenDaysLater = admin.firestore.Timestamp.fromDate(
-    new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
-  );
+export const checkLicenseExpiry = onSchedule(
+  {
+    schedule: "0 * * * *", // Every hour
+    timeZone: "Africa/Lusaka",
+  },
+  async () => {
+    const now = admin.firestore.Timestamp.now();
+    const sevenDaysLater = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
 
-  // Helper function to handle snapshots
-  const handleSnapshot = async (
-    snapshot: FirebaseFirestore.QuerySnapshot,
-    isExpired: boolean
-  ) => {
-    if (snapshot.empty) {
-      console.log(
-        isExpired ? "No expired licenses." : "No licenses expiring soon."
-      );
-      return;
-    }
+    const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
-    const promises = snapshot.docs.map(async (doc) => {
-      const data = doc.data();
-      const userEmail = data.email;
-
-      if (!userEmail) {
-        console.warn(`Missing email for document ${doc.id}`);
+    const handleSnapshot = async (
+      snapshot: FirebaseFirestore.QuerySnapshot,
+      isExpired: boolean,
+      type: "license" | "roadtax"
+    ) => {
+      if (snapshot.empty) {
+        logger.info(
+          isExpired ? `No expired ${type}s.` : `No ${type}s expiring soon.`
+        );
         return;
       }
 
-      const tokenSnapshot = await db
-        .collection("tokens")
-        .where("email", "==", userEmail)
-        .limit(1)
+      const promises = snapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const userEmail = data.email;
+
+        if (!userEmail) {
+          logger.warn(`Missing email for document ${doc.id}`);
+          return;
+        }
+
+        const tokenSnapshot = await db
+          .collection("tokens")
+          .where("email", "==", userEmail)
+          .limit(1)
+          .get();
+
+        if (tokenSnapshot.empty) {
+          logger.warn(`No FCM token found for email: ${userEmail}`);
+          return;
+        }
+
+        const tokenData = tokenSnapshot.docs[0].data();
+        const fcmToken = tokenData.token;
+        const fullPhone = tokenData.fullPhone;
+
+        if (!fcmToken || !fullPhone) {
+          logger.warn(`Token or phone missing for email: ${userEmail}`);
+          return;
+        }
+
+        const expiryDateStr = data.expiryDate
+          .toDate()
+          .toLocaleDateString("en-ZM");
+
+        const title = isExpired
+          ? `${type === "license" ? "License" : "Road Tax"} Expired`
+          : `${type === "license" ? "License" : "Road Tax"} Expiry Reminder`;
+        const body = isExpired
+          ? `Your ${type} expired on ${expiryDateStr}. Please renew it immediately.`
+          : `Your ${type} is expiring on ${expiryDateStr}. Please renew it soon.`;
+        const notificationData = {
+          type: isExpired ? `${type}_expired` : `${type}_expiry`,
+        };
+
+        await sendNotification(
+          fcmToken,
+          title,
+          body,
+          notificationData,
+          userEmail
+        );
+
+        const lastSmsSent = data.lastSmsSent?.toDate();
+        const nowDate = new Date();
+
+        if (
+          !lastSmsSent ||
+          nowDate.getTime() - lastSmsSent.getTime() >= SIX_HOURS_MS
+        ) {
+          await sendSms(fullPhone, body);
+
+          await db
+            .collection(type === "license" ? "DriverLicense" : "roadTax")
+            .doc(doc.id)
+            .update({
+              lastSmsSent: admin.firestore.Timestamp.fromDate(nowDate),
+            });
+        } else {
+          logger.info(
+            `Skipping SMS for ${userEmail} (${type}, last sent less than 6 hours ago)`
+          );
+        }
+      });
+
+      await Promise.all(promises);
+    };
+
+    try {
+      const licenseExpiringSoon = await db
+        .collection("DriverLicense")
+        .where("expiryDate", ">=", now)
+        .where("expiryDate", "<=", sevenDaysLater)
         .get();
 
-      if (tokenSnapshot.empty) {
-        console.warn(`No FCM token found for email: ${userEmail}`);
-        return;
-      }
+      const licenseExpired = await db
+        .collection("DriverLicense")
+        .where("expiryDate", "<", now)
+        .get();
 
-      const tokenData = tokenSnapshot.docs[0].data();
-      const fcmToken = tokenData.token;
-      const fullPhone = tokenData.fullPhone;
+      const roadTaxExpiringSoon = await db
+        .collection("roadTax")
+        .where("expiryDate", ">=", now)
+        .where("expiryDate", "<=", sevenDaysLater)
+        .get();
 
-      if (!fcmToken) {
-        console.warn(`Token field missing for email: ${userEmail}`);
-        return;
-      }
+      const roadTaxExpired = await db
+        .collection("roadTax")
+        .where("expiryDate", "<", now)
+        .get();
 
-      if (!fullPhone) {
-        console.warn(`Full phone field missing for email: ${userEmail}`);
-        return;
-      }
-
-      const expiryDateStr = data.expiryDate
-        .toDate()
-        .toLocaleDateString("en-ZM");
-
-      const title = isExpired
-        ? "License Expired"
-        : "License Expiry Reminder";
-      const body = isExpired
-        ? `Your license expired on ${expiryDateStr}. Please renew it immediately.`
-        : `Your license is expiring on ${expiryDateStr}. Please renew it soon.`;
-      const notificationData = {
-        type: isExpired ? "license_expired" : "license_expiry",
-      };
-
-      await sendNotification(
-        fcmToken,
-        title,
-        body,
-        notificationData,
-        userEmail
-      );
-
-      await sendSms(fullPhone, body);
-    });
-
-    await Promise.all(promises);
-  };
-
-  // Query licenses expiring soon
-  const expiringSoonSnapshot = await db
-    .collection("DriverLicense")
-    .where("expiryDate", ">=", now)
-    .where("expiryDate", "<=", sevenDaysLater)
-    .get();
-
-  // Query expired licenses
-  const expiredSnapshot = await db
-    .collection("DriverLicense")
-    .where("expiryDate", "<", now)
-    .get();
-
-  await handleSnapshot(expiringSoonSnapshot, false);
-  await handleSnapshot(expiredSnapshot, true);
-}
-
-// HTTP triggered function for manual notification
-export const notifyLicenseExpiryHttp = functions.https.onRequest(
-  async (req, res) => {
-    try {
-      await notifyLicenses();
-      res.status(200).send({ message: "Notifications sent successfully." });
+      await handleSnapshot(licenseExpiringSoon, false, "license");
+      await handleSnapshot(licenseExpired, true, "license");
+      await handleSnapshot(roadTaxExpiringSoon, false, "roadtax");
+      await handleSnapshot(roadTaxExpired, true, "roadtax");
     } catch (error) {
-      console.error("Error sending notifications:", error);
-      res.status(500).send({ error: "Internal Server Error" });
+      logger.error("Error checking expiries:", error);
     }
   }
 );
+
+export const notifyLicenseExpiryHttp = onRequest(async (req, res) => {
+  try {
+    const now = admin.firestore.Timestamp.now();
+    const sevenDaysLater = admin.firestore.Timestamp.fromDate(
+      new Date(Date.now() + 7 * 24 * 60 * 60 * 1000)
+    );
+    const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
+
+    const handleSnapshot = async (
+      snapshot: FirebaseFirestore.QuerySnapshot,
+      isExpired: boolean,
+      type: "license" | "roadtax"
+    ) => {
+      const promises = snapshot.docs.map(async (doc) => {
+        const data = doc.data();
+        const userEmail = data.email;
+
+        if (!userEmail) return;
+
+        const tokenSnapshot = await db
+          .collection("tokens")
+          .where("email", "==", userEmail)
+          .limit(1)
+          .get();
+
+        if (tokenSnapshot.empty) return;
+
+        const tokenData = tokenSnapshot.docs[0].data();
+        const fcmToken = tokenData.token;
+        const fullPhone = tokenData.fullPhone;
+
+        if (!fcmToken || !fullPhone) return;
+
+        const expiryDateStr = data.expiryDate
+          .toDate()
+          .toLocaleDateString("en-ZM");
+
+        const title = isExpired
+          ? `${type === "license" ? "License" : "Road Tax"} Expired`
+          : `${type === "license" ? "License" : "Road Tax"} Expiry Reminder`;
+        const body = isExpired
+          ? `Your ${type} expired on ${expiryDateStr}. Please renew it immediately.`
+          : `Your ${type} is expiring on ${expiryDateStr}. Please renew it soon.`;
+
+        const notificationData = {
+          type: isExpired ? `${type}_expired` : `${type}_expiry`,
+        };
+
+        await sendNotification(
+          fcmToken,
+          title,
+          body,
+          notificationData,
+          userEmail
+        );
+
+        const lastSmsSent = data.lastSmsSent?.toDate();
+        const nowDate = new Date();
+
+        if (
+          !lastSmsSent ||
+          nowDate.getTime() - lastSmsSent.getTime() >= SIX_HOURS_MS
+        ) {
+          await sendSms(fullPhone, body);
+
+          await db
+            .collection(type === "license" ? "DriverLicense" : "roadTax")
+            .doc(doc.id)
+            .update({
+              lastSmsSent: admin.firestore.Timestamp.fromDate(nowDate),
+            });
+        }
+      });
+
+      await Promise.all(promises);
+    };
+
+    const licenseExpiringSoon = await db
+      .collection("DriverLicense")
+      .where("expiryDate", ">=", now)
+      .where("expiryDate", "<=", sevenDaysLater)
+      .get();
+
+    const licenseExpired = await db
+      .collection("DriverLicense")
+      .where("expiryDate", "<", now)
+      .get();
+
+    const roadTaxExpiringSoon = await db
+      .collection("roadTax")
+      .where("expiryDate", ">=", now)
+      .where("expiryDate", "<=", sevenDaysLater)
+      .get();
+
+    const roadTaxExpired = await db
+      .collection("roadTax")
+      .where("expiryDate", "<", now)
+      .get();
+
+    await handleSnapshot(licenseExpiringSoon, false, "license");
+    await handleSnapshot(licenseExpired, true, "license");
+    await handleSnapshot(roadTaxExpiringSoon, false, "roadtax");
+    await handleSnapshot(roadTaxExpired, true, "roadtax");
+
+    res.status(200).send("Notifications processed successfully.");
+  } catch (error) {
+    logger.error("Error processing notifications:", error);
+    res.status(500).send("Error processing notifications.");
+  }
+});

@@ -10,7 +10,7 @@ class ProfileState extends Equatable {
     this.status = CurrentStatus.initial,
   });
 
-  /// A description for customProperty
+  /// A description for message
   final String message;
   final CurrentStatus status;
 

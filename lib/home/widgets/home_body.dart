@@ -4,6 +4,7 @@ import 'package:road_guard/auth/auth.dart';
 import 'package:road_guard/drivers_license/drivers_license.dart';
 import 'package:road_guard/home/cubit/cubit.dart';
 import 'package:road_guard/profile/view/profile_page.dart';
+import 'package:road_guard/road_tax/view/road_tax_page.dart';
 import 'package:road_guard/utils/utils.dart';
 import 'package:url_launcher/url_launcher.dart';
 
@@ -38,6 +39,9 @@ class HomeBody extends StatelessWidget {
 
             // --- Driver's License Section ---
             _buildDriversLicenseSection(context),
+            const SizedBox(height: 24),
+            // --- Road Tax Section ---
+            _buildTaxSection(context),
             const SizedBox(height: 24),
 
             // --- Quick Links Section ---
@@ -203,6 +207,99 @@ class HomeBody extends StatelessWidget {
                     Navigator.push(
                       context,
                       DriversLicensePage.route('Update'),
+                    );
+                  },
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  Widget _buildTaxSection(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Padding(
+          padding: EdgeInsets.only(left: getProportionateScreenWidth(4)),
+          child: Row(
+            children: [
+              Text(
+                'Road Tax',
+                style: Theme.of(context)
+                    .textTheme
+                    .titleLarge
+                    ?.copyWith(fontWeight: FontWeight.bold),
+              ),
+              const Spacer(),
+              IconButton(
+                onPressed: () {
+                  showDialog<void>(
+                    context: context,
+                    builder: (context) {
+                      return AlertDialog(
+                        title: const Text('Road Tax Information'),
+                        content: const Text(
+                          '''Manage your road tax information including: \n\n- Add a new road tax \n-View your road tax \n- Update your road tax''',
+                        ),
+                        actions: [
+                          TextButton(
+                            onPressed: () => Navigator.of(context).pop(),
+                            child: const Text('OK'),
+                          ),
+                        ],
+                      );
+                    },
+                  );
+                },
+                icon: const Icon(Icons.help_outline),
+                tooltip: 'View road tax description',
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: 8),
+        Card(
+          color: Colors.orange.shade50,
+          elevation: 3,
+          shadowColor: Colors.orange.withOpacity(0.3),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(vertical: 24, horizontal: 16),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+              children: [
+                _LicenseButton(
+                  icon: Icons.add_card,
+                  label: 'Add',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      RoadTaxPage.route('Add'),
+                    );
+                  },
+                ),
+                _LicenseButton(
+                  icon: Icons.remove_red_eye,
+                  label: 'View',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      RoadTaxPage.route('View'),
+                    );
+                  },
+                ),
+                _LicenseButton(
+                  icon: Icons.edit,
+                  label: 'Update',
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      RoadTaxPage.route('Update'),
                     );
                   },
                 ),

@@ -1,14 +1,14 @@
-part of 'drivers_license_cubit.dart';
+part of 'road_tax_cubit.dart';
 
-/// {@template drivers_license}
-/// DriversLicenseState description
+/// {@template road_tax}
+/// RoadTaxState description
 /// {@endtemplate}
-class DriversLicenseState extends Equatable {
-  /// {@macro drivers_license}
-  const DriversLicenseState({
+class RoadTaxState extends Equatable {
+  /// {@macro road_tax}
+  const RoadTaxState({
     this.message = 'Default Value',
-    this.action = '',
-    this.title = '',
+    this.action = 'Default Value',
+    this.title = 'Default Value',
     this.status = CurrentStatus.initial,
     this.data,
   });
@@ -22,17 +22,17 @@ class DriversLicenseState extends Equatable {
   bool get isLoading => status == CurrentStatus.loading;
 
   @override
-  List<Object?> get props => [message, action, status, data, title];
+  List<Object?> get props => [message, action, title, status, data];
 
-  /// Creates a copy of the current DriversLicenseState with property changes
-  DriversLicenseState copyWith({
+  /// Creates a copy of the current RoadTaxState with property changes
+  RoadTaxState copyWith({
     String? message,
     String? action,
     String? title,
     CurrentStatus? status,
     JsonMap? data,
   }) {
-    return DriversLicenseState(
+    return RoadTaxState(
       message: message ?? this.message,
       status: status ?? this.status,
       title: title ?? this.title,

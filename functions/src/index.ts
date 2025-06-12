@@ -182,11 +182,10 @@ export const sendNotificationByGetTokensFromCloudStore = onRequest(
   }
 );
 
+
 export const checkLicenseExpiry = onSchedule(
   {
-    // schedule: "*/30 * * * *", // Every 30 minutes
     schedule: "0 * * * *", // Every hour
-    // schedule: "0 8,18 * * *", // Runs at 08:00 and 18:00 daily
     timeZone: "Africa/Lusaka",
   },
   async () => {
@@ -197,18 +196,18 @@ export const checkLicenseExpiry = onSchedule(
     );
 
     try {
-      // 1. Licenses expiring soon
       const expiringSoonSnapshot = await db
         .collection("DriverLicense")
         .where("expiryDate", ">=", now)
         .where("expiryDate", "<=", sevenDaysLater)
         .get();
 
-      // 2. Licenses already expired
       const expiredSnapshot = await db
         .collection("DriverLicense")
         .where("expiryDate", "<", now)
         .get();
+
+      const SIX_HOURS_MS = 6 * 60 * 60 * 1000;
 
       const handleSnapshot = async (
         snapshot: FirebaseFirestore.QuerySnapshot,
@@ -243,16 +242,10 @@ export const checkLicenseExpiry = onSchedule(
 
           const tokenData = tokenSnapshot.docs[0].data();
           const fcmToken = tokenData.token;
-
-          if (!fcmToken) {
-            logger.warn(`Token field missing for email: ${userEmail}`);
-            return;
-          }
-
           const fullPhone = tokenData.fullPhone;
 
-          if (!fullPhone) {
-            logger.warn(`Full phone field missing for email: ${userEmail}`);
+          if (!fcmToken || !fullPhone) {
+            logger.warn(`Token or phone missing for email: ${userEmail}`);
             return;
           }
 
@@ -270,6 +263,7 @@ export const checkLicenseExpiry = onSchedule(
             type: isExpired ? "license_expired" : "license_expiry",
           };
 
+          // Send push notification
           await sendNotification(
             fcmToken,
             title,
@@ -277,9 +271,28 @@ export const checkLicenseExpiry = onSchedule(
             notificationData,
             userEmail
           );
-          // Also send SMS
-          if (fullPhone) {
+
+          // Check and conditionally send SMS
+          const lastSmsSent = data.lastSmsSent?.toDate();
+          const nowDate = new Date();
+
+          if (
+            !lastSmsSent ||
+            nowDate.getTime() - lastSmsSent.getTime() >= SIX_HOURS_MS
+          ) {
             await sendSms(fullPhone, body);
+
+            // Update lastSmsSent timestamp
+            await db
+              .collection("DriverLicense")
+              .doc(doc.id)
+              .update({
+                lastSmsSent: admin.firestore.Timestamp.fromDate(nowDate),
+              });
+          } else {
+            logger.info(
+              `Skipping SMS for ${userEmail} (last sent less than 6 hours ago)`
+            );
           }
         });
 
@@ -293,6 +306,98 @@ export const checkLicenseExpiry = onSchedule(
     }
   }
 );
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 const sendSms = async (recipient: string, message: string) => {
   const url = "https://probasesms.com/api/json/multi/res/bulk/sms";
